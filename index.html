@@ -684,6 +684,168 @@
     40% { transform: perspective(800px) rotateY(540deg) scale(1.3); opacity: 1; }
     100% { transform: perspective(800px) rotateY(720deg) scale(1); opacity: 1; }
   }
+  /* Random pokémon button */
+  .rand-btn {
+    background: linear-gradient(135deg, #00d4ff 0%, #7038f8 100%) !important;
+    border: 1px solid rgba(255,255,255,0.35) !important;
+    color: #fff !important;
+    font-size: 14px !important;
+    padding: 8px 12px !important;
+    box-shadow: 0 0 12px rgba(0,212,255,0.4);
+  }
+  .rand-btn:hover:not(:disabled) {
+    box-shadow: 0 0 22px rgba(0,212,255,0.7), 0 0 40px rgba(112,56,248,0.4);
+  }
+
+  /* AI toggle */
+  .ai-row {
+    display: flex; align-items: center; gap: 8px;
+    margin-top: 10px; padding: 8px 10px;
+    background: rgba(15, 22, 38, 0.6);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 8px;
+    font-family: 'Press Start 2P', monospace; font-size: 9px;
+    cursor: pointer;
+    transition: background 0.15s ease;
+  }
+  .ai-row:hover { background: rgba(112, 56, 248, 0.15); }
+  .ai-row input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; }
+  .ai-row .ai-label { color: #c4a8ff; }
+  .player-card.ai-mode {
+    border-color: rgba(112,56,248,0.5);
+    box-shadow: 0 10px 36px rgba(0,0,0,0.4), 0 0 30px rgba(112,56,248,0.2);
+  }
+  .player-card.ai-mode .add-row,
+  .player-card.ai-mode .slot-actions,
+  .player-card.ai-mode .reorder-row,
+  .player-card.ai-mode .reroll-counter,
+  .player-card.ai-mode .remove-btn { display: none !important; }
+  .ai-badge {
+    display: inline-block; font-family: 'Orbitron', sans-serif;
+    background: linear-gradient(135deg, #7038f8, #00d4ff);
+    color: #fff; padding: 3px 8px; border-radius: 8px;
+    font-size: 10px; margin-left: 8px;
+    text-shadow: 0 0 6px rgba(0,0,0,0.4);
+  }
+
+  /* Turn queue preview */
+  .turn-queue {
+    display: flex; gap: 6px; padding: 8px 12px;
+    background: rgba(22, 33, 62, 0.55);
+    backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 12px;
+    margin-bottom: 12px;
+    overflow-x: auto;
+    align-items: center;
+  }
+  .turn-queue::-webkit-scrollbar { height: 6px; }
+  .turn-queue::-webkit-scrollbar-thumb { background: rgba(245,166,35,0.3); border-radius: 3px; }
+  .queue-chip {
+    display: flex; align-items: center; gap: 6px; flex-shrink: 0;
+    padding: 4px 8px;
+    background: rgba(15,22,38,0.7);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px;
+    font-family: 'Orbitron', sans-serif; font-weight: 700;
+    font-size: 10px; color: var(--muted);
+    transition: all 0.2s ease;
+  }
+  .queue-chip.current {
+    background: linear-gradient(135deg, rgba(245,166,35,0.35), rgba(233,69,96,0.25));
+    border-color: var(--accent-2); color: #fff;
+    box-shadow: 0 0 14px rgba(245,166,35,0.5);
+    transform: scale(1.08);
+  }
+  .queue-chip.done { opacity: 0.4; filter: grayscale(0.5); }
+  .queue-chip .queue-pos {
+    font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: 13px;
+    color: var(--accent-2); min-width: 18px;
+  }
+  .queue-chip.current .queue-pos { color: #fff; text-shadow: 0 0 8px var(--accent-2); }
+  .queue-chip img {
+    width: 32px; height: 32px; image-rendering: pixelated;
+    background: rgba(0,0,0,0.3); border-radius: 6px;
+  }
+  .queue-chip .queue-name { letter-spacing: 1px; text-transform: uppercase; max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .queue-chip.ai .queue-name::before { content: '🤖 '; }
+
+  /* Position counter in action panel */
+  .position-badge {
+    font-family: 'Orbitron', sans-serif; font-weight: 800;
+    background: linear-gradient(135deg, var(--accent-2), var(--accent));
+    color: #fff; padding: 4px 10px; border-radius: 10px;
+    font-size: 11px; letter-spacing: 2px;
+    box-shadow: 0 0 10px rgba(245,166,35,0.4);
+  }
+  .ai-thinking {
+    text-align: center; padding: 10px;
+    font-family: 'Orbitron', sans-serif; font-weight: 700;
+    color: #c4a8ff; letter-spacing: 3px;
+    animation: aiPulse 1s ease-in-out infinite;
+  }
+  @keyframes aiPulse { 0%,100% { opacity: 0.6; } 50% { opacity: 1; } }
+
+  /* Slot action mini-buttons */
+  .slot-actions {
+    display: flex; gap: 2px; justify-content: center; margin-top: 4px;
+    flex-wrap: wrap;
+  }
+  .slot-actions button {
+    font-family: 'Press Start 2P', monospace; font-size: 9px;
+    padding: 3px 5px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: #cdd3e0;
+    border-radius: 5px; cursor: pointer;
+    transition: background 0.15s ease, transform 0.12s ease;
+  }
+  .slot-actions button:hover:not(:disabled) { background: rgba(245,166,35,0.25); color: #fff; transform: translateY(-1px); }
+  .slot-actions button:disabled { opacity: 0.3; cursor: not-allowed; }
+  .slot-actions .star-btn { color: #f5a623; }
+  .slot-actions .roll-mon { color: #4ecdc4; }
+  .slot-actions .roll-item { color: #c4a8ff; }
+
+  .reroll-counter {
+    display: flex; justify-content: space-around;
+    font-family: 'Press Start 2P', monospace; font-size: 9px;
+    margin: 8px 0; padding: 6px;
+    background: rgba(15, 22, 38, 0.6);
+    border-radius: 6px; border: 1px solid rgba(255,255,255,0.06);
+  }
+  .reroll-counter span { color: var(--accent-2); }
+  .reroll-counter span.zero { color: var(--bad); }
+
+  /* Mega-capable badge in arena */
+  .mega-capable-badge {
+    position: absolute; top: -10px; left: 8px;
+    font-family: 'Orbitron', sans-serif; font-weight: 800; font-size: 14px;
+    background: linear-gradient(135deg, #ff5fb0 0%, #7038f8 100%);
+    color: #fff; padding: 3px 8px; border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.4);
+    box-shadow: 0 0 10px rgba(255,95,176,0.6), 0 0 20px rgba(112,56,248,0.4);
+    z-index: 9; pointer-events: none;
+    animation: megaCapBob 1.6s ease-in-out infinite;
+  }
+  @keyframes megaCapBob {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(-2px) scale(1.08); }
+  }
+
+  /* Preview IV grid + nature */
+  .preview-mon .pm-nature {
+    font-size: 9px; color: var(--accent-2); margin-top: 2px;
+    font-family: 'Press Start 2P', monospace;
+  }
+  .preview-mon .pm-ivs {
+    font-size: 9px; color: #cdd3e0; margin-top: 3px;
+    font-family: 'Press Start 2P', monospace;
+  }
+  .preview-mon .pm-item {
+    font-size: 8px; color: #c4a8ff; margin-top: 2px;
+    font-family: 'Press Start 2P', monospace;
+  }
+
   /* Reorder arrows on team-slot */
   .reorder-row {
     display: flex; gap: 2px; justify-content: center; margin-top: 4px;
@@ -1360,6 +1522,7 @@
       <div class="turn-indicator" id="turn-indicator">TOUR 1</div>
     </div>
   </div>
+  <div class="turn-queue" id="turn-queue"></div>
   <div class="battle-main">
     <div class="arena" id="arena"></div>
     <div class="side-panel">
@@ -1659,14 +1822,15 @@ function pickOptimalAbility(abilitiesList) {
 }
 
 // ---------- HELD ITEMS ----------
-function pickOptimalItem(base) {
-  const isPhysical = base.attack > base.spAtk;
-  const bulk = base.hp + base.defense + base.spDef;
-  if (base.speed >= 110 && (base.hp + base.defense) < 170) return { name: 'Ceinture Force', slug: 'focus-sash', effect: 'sash' };
-  if (bulk >= 290) return { name: 'Restes', slug: 'leftovers', effect: 'leftovers' };
-  if (isPhysical && base.attack >= 110) return { name: 'Bandeau Choix', slug: 'choice-band', effect: 'choiceBand' };
-  if (!isPhysical && base.spAtk >= 110) return { name: 'Lunettes Choix', slug: 'choice-specs', effect: 'choiceSpecs' };
-  return { name: 'Orbe Vie', slug: 'life-orb', effect: 'lifeOrb' };
+const ITEM_POOL = [
+  { name: 'Restes',          slug: 'leftovers',    effect: 'leftovers' },
+  { name: 'Bandeau Choix',   slug: 'choice-band',  effect: 'choiceBand' },
+  { name: 'Lunettes Choix',  slug: 'choice-specs', effect: 'choiceSpecs' },
+  { name: 'Orbe Vie',        slug: 'life-orb',     effect: 'lifeOrb' },
+  { name: 'Ceinture Force',  slug: 'focus-sash',   effect: 'sash' }
+];
+function pickRandomItem() {
+  return ITEM_POOL[Math.floor(Math.random() * ITEM_POOL.length)];
 }
 
 // ---------- MEGA EVOLUTIONS (species varieties) ----------
@@ -1750,9 +1914,9 @@ async function buildPokemon(frName, isStarter) {
     : data.sprites.front_default;
   const sprite = animated || staticSprite || data.sprites.other?.['official-artwork']?.front_default;
 
-  // Optimal ability + held item
+  // Optimal ability + random held item
   const ability = pickOptimalAbility(data.abilities);
-  const heldItem = pickOptimalItem(baseStats);
+  const heldItem = pickRandomItem();
 
   // Cry URL
   const cry = data.cries?.latest || data.cries?.legacy || null;
@@ -1855,7 +2019,9 @@ function renderSetup() {
       name: 'Joueur ' + (gameState.players.length + 1),
       team: [],
       activeIdx: 0,
-      eliminated: false
+      eliminated: false,
+      itemRerollsLeft: 3,
+      monRerollsLeft: 3
     });
   }
   gameState.players.length = gameState.playerCount;
@@ -1863,7 +2029,7 @@ function renderSetup() {
   gameState.players.forEach((p, idx) => {
     const card = el('div', { className: 'player-card' });
     card.innerHTML = `
-      <h3>JOUEUR ${idx + 1}</h3>
+      <h3>JOUEUR ${idx + 1}${p.isAI ? '<span class="ai-badge">🤖 IA</span>' : ''}</h3>
       <div class="name-row">
         <label>Nom du dresseur</label>
         <input type="text" class="p-name" value="${p.name.replace(/"/g, '&quot;')}" />
@@ -1871,12 +2037,17 @@ function renderSetup() {
       <div>
         <label>Starter / Ajouter Pokémon (Gen 1-7, noms FR)</label>
         <div class="add-row">
+          <button class="p-rand-btn rand-btn" title="Pokémon aléatoire">🎲</button>
           <input type="text" class="p-mon-input" list="pokedex-list" placeholder="ex: Bulbizarre" autocomplete="off" />
           <button class="p-add-btn">AJOUTER</button>
         </div>
         <div class="inline-error p-error"></div>
         <div class="suggestions p-suggestions"></div>
       </div>
+      <label class="ai-row">
+        <input type="checkbox" class="p-ai-toggle" />
+        <span class="ai-label">🤖 Joueur IA (équipe aléatoire automatique)</span>
+      </label>
       <div class="team-list"></div>
       <div style="font-size:10px;color:var(--muted);margin-top:6px;">Équipe : <span class="team-count">0</span>/7</div>
     `;
@@ -1889,6 +2060,32 @@ function renderSetup() {
     const monInput = card.querySelector('.p-mon-input');
     const errBox = card.querySelector('.p-error');
     const sugBox = card.querySelector('.p-suggestions');
+    const randBtn = card.querySelector('.p-rand-btn');
+    const aiToggle = card.querySelector('.p-ai-toggle');
+
+    // Restore AI checkbox state + classes
+    if (p.isAI) {
+      aiToggle.checked = true;
+      card.classList.add('ai-mode');
+    }
+    aiToggle.addEventListener('change', async () => {
+      p.isAI = aiToggle.checked;
+      card.classList.toggle('ai-mode', p.isAI);
+      if (p.isAI) {
+        // Auto-generate random team of 6
+        p.team = [];
+        await generateAITeam(card, p, 6);
+        renderTeam(card, p);
+        updateLaunchBtn();
+      }
+    });
+
+    randBtn.addEventListener('click', async () => {
+      if (p.team.length >= 7) { errBox.textContent = 'Équipe pleine (max 7).'; return; }
+      const name = POKEDEX_NAMES_FR[Math.floor(Math.random() * POKEDEX_NAMES_FR.length)];
+      monInput.value = name;
+      addMon();
+    });
 
     const showSuggestions = (list) => {
       sugBox.innerHTML = '';
@@ -1982,23 +2179,33 @@ function renderTeam(card, player) {
 
   player.team.forEach((mon, i) => {
     const isFusionSlot = (i === 6); // 7th slot = fusion-only
+    const isStarterSlot = (i === 0);
     const slot = el('div', {
       className: 'team-slot'
         + (mon.isStarter ? ' starter' : '')
         + (mon.isShiny ? ' shiny' : '')
         + (isFusionSlot ? ' fusion-only' : '')
     });
-    slot.style.width = '110px';
+    slot.style.width = '120px';
     const shinyMark = mon.isShiny ? '<span class="shiny-mark" title="Shiny !">✨</span>' : '';
+    const starterTag = isStarterSlot && !isFusionSlot ? '<div style="font-size:8px;color:#f5a623;margin-top:2px;font-family:\'Press Start 2P\',monospace;">🏁 DÉPART</div>' : '';
     const fusionTag = isFusionSlot ? '<div class="fusion-only-tag">FUSION SLOT</div>' : '';
+    const itemTag = mon.heldItem ? `<div style="font-size:8px;color:#c4a8ff;margin-top:2px;font-family:'Press Start 2P',monospace;">🎒 ${mon.heldItem.name}</div>` : '';
     slot.innerHTML = `
-      <img src="${mon.spriteStatic || mon.sprite}" alt="${mon.name}" style="width:96px;height:96px;" />
+      <img src="${mon.spriteStatic || mon.sprite}" alt="${mon.name}" style="width:88px;height:88px;" />
       <div class="pname">${shinyMark}${mon.name}</div>
       ${ivGridHTML(mon.ivs)}
+      ${itemTag}
+      ${starterTag}
       ${fusionTag}
       <div class="reorder-row">
         <button class="reorder-btn left" title="Reculer" ${i === 0 ? 'disabled' : ''}>◀</button>
         <button class="reorder-btn right" title="Avancer" ${i === player.team.length - 1 ? 'disabled' : ''}>▶</button>
+      </div>
+      <div class="slot-actions">
+        <button class="star-btn" title="Mettre en départ" ${isStarterSlot ? 'disabled' : ''}>★</button>
+        <button class="roll-mon" title="Re-roll Pokémon (${player.monRerollsLeft || 0} restant)" ${(player.monRerollsLeft || 0) <= 0 ? 'disabled' : ''}>🎲</button>
+        <button class="roll-item" title="Re-roll objet (${player.itemRerollsLeft || 0} restant)" ${(player.itemRerollsLeft || 0) <= 0 ? 'disabled' : ''}>🎒</button>
       </div>
       <button class="remove-btn" title="Retirer">×</button>
     `;
@@ -2019,8 +2226,85 @@ function renderTeam(card, player) {
       swapTeamSlots(player, i, i + 1);
       renderTeam(card, player);
     });
+    slot.querySelector('.star-btn').addEventListener('click', () => {
+      // move this mon to slot 0
+      if (i === 0) return;
+      const [m] = player.team.splice(i, 1);
+      player.team.unshift(m);
+      // refresh starter flag (slot 0 is now this mon)
+      player.team.forEach((mm, idx) => { mm.isStarter = (idx === 0); });
+      applyStarterBoost(player.team[0]);
+      renderTeam(card, player);
+    });
+    slot.querySelector('.roll-mon').addEventListener('click', () => rerollMon(card, player, i));
+    slot.querySelector('.roll-item').addEventListener('click', () => rerollItem(card, player, i));
     list.appendChild(slot);
   });
+
+  // Reroll counter strip
+  const oldCounter = card.querySelector('.reroll-counter');
+  if (oldCounter) oldCounter.remove();
+  const counterBar = el('div', { className: 'reroll-counter' });
+  counterBar.innerHTML = `
+    <span class="${(player.monRerollsLeft || 0) === 0 ? 'zero' : ''}">🎲 Pokémon : ${player.monRerollsLeft || 0}/3</span>
+    <span class="${(player.itemRerollsLeft || 0) === 0 ? 'zero' : ''}">🎒 Objets : ${player.itemRerollsLeft || 0}/3</span>
+  `;
+  list.parentElement.insertBefore(counterBar, list);
+}
+
+async function generateAITeam(card, player, count) {
+  showLoader(`IA : génération équipe (${count} Pokémon)…`);
+  try {
+    for (let i = 0; i < count; i++) {
+      let attempts = 0, mon = null;
+      while (!mon && attempts < 5) {
+        attempts++;
+        const name = POKEDEX_NAMES_FR[Math.floor(Math.random() * POKEDEX_NAMES_FR.length)];
+        try {
+          mon = await buildPokemon(name, i === 0);
+        } catch { mon = null; }
+      }
+      if (mon) player.team.push(mon);
+      renderTeam(card, player);
+    }
+  } finally {
+    hideLoader();
+  }
+}
+
+async function rerollMon(card, player, idx) {
+  if ((player.monRerollsLeft || 0) <= 0) return;
+  if (!POKEDEX_NAMES_FR.length) return;
+  const old = player.team[idx];
+  // Random different mon
+  let randomName;
+  let attempts = 0;
+  do {
+    randomName = POKEDEX_NAMES_FR[Math.floor(Math.random() * POKEDEX_NAMES_FR.length)];
+    attempts++;
+  } while (attempts < 10 && (old && old.name.toLowerCase() === randomName.toLowerCase()));
+  showLoader('Re-roll : ' + randomName + '…');
+  try {
+    const wasStarter = old ? old.isStarter : (idx === 0);
+    const newMon = await buildPokemon(randomName, wasStarter);
+    player.team[idx] = newMon;
+    player.monRerollsLeft = (player.monRerollsLeft || 0) - 1;
+    renderTeam(card, player);
+  } catch (e) {
+    console.warn('Re-roll failed', e);
+  } finally {
+    hideLoader();
+  }
+}
+
+function rerollItem(card, player, idx) {
+  if ((player.itemRerollsLeft || 0) <= 0) return;
+  const mon = player.team[idx];
+  if (!mon) return;
+  const newItem = pickRandomItem();
+  mon.heldItem = newItem;
+  player.itemRerollsLeft = (player.itemRerollsLeft || 0) - 1;
+  renderTeam(card, player);
 }
 
 function updateLaunchBtn() {
@@ -2079,11 +2363,23 @@ function renderDraft() {
     $('draft-grid').innerHTML = '';
     const sum = $('draft-summary');
     sum.innerHTML = '';
+    const editBtn = el('button', { textContent: '← MODIFIER ÉQUIPES' });
+    editBtn.style.marginRight = '12px';
+    editBtn.addEventListener('click', () => {
+      // Return to setup w/ team editing. Powers preserved; draftPointer reset.
+      gameState.draftPointer = 0;
+      gameState.players.forEach(p => { p.power = null; });
+      gameState.phase = 'setup';
+      $('draft-screen').classList.add('hidden');
+      $('setup-screen').classList.remove('hidden');
+      renderSetup();
+    });
     const previewBtn = el('button', { textContent: '👁️ APERÇU ÉQUIPES' });
     previewBtn.style.marginRight = '12px';
     previewBtn.addEventListener('click', () => showTeamsPreview());
     const btn = el('button', { className: 'primary', textContent: '⚔ COMMENCER LE COMBAT ⚔' });
     btn.addEventListener('click', () => startBattle());
+    sum.appendChild(editBtn);
     sum.appendChild(previewBtn);
     sum.appendChild(btn);
     return;
@@ -2092,7 +2388,17 @@ function renderDraft() {
   $('draft-summary').innerHTML = '';
   const pid = gameState.draftOrder[gameState.draftPointer];
   const player = gameState.players[pid];
-  cur.innerHTML = `Tour de <strong>${player.name}</strong> — choisis ton pouvoir`;
+  cur.innerHTML = `Tour de <strong>${player.name}</strong>${player.isAI ? ' 🤖' : ''} — choisis ton pouvoir`;
+
+  // AI auto-picks a random remaining power after a short delay
+  if (player.isAI) {
+    setTimeout(() => {
+      const remainingNow = Object.keys(POWERS).filter(k => !gameState.players.some(p => p.power === k));
+      if (remainingNow.length > 0) {
+        pickPower(remainingNow[Math.floor(Math.random() * remainingNow.length)]);
+      }
+    }, 800);
+  }
 
   const grid = $('draft-grid');
   grid.innerHTML = '';
@@ -2139,7 +2445,7 @@ function startBattle() {
     p.activeIdx = 0;
     p.eliminated = false;
     p.items = { maxPotion: 1, maxRevive: 1 };
-    p.megaCooldownUntil = 0;
+    p.megaUsed = false;
     p.deathBuff = 0;
     p.fusionUsed = false;
     p.teamSpeedMult = p.teamSpeedMult || 1.0;
@@ -2155,6 +2461,7 @@ function startBattle() {
   gameState.turnNumber = 1;
   gameState.turnPointer = 0;
   gameState.fogStacks = 0;
+  gameState.fusionUsedThisBattle = false;
   gameState.weather = { type: rollWeather(), endsAtRound: 3 };
 
   // POWER: Zero Absolu Room → all OTHER players' team speed -12% at the start
@@ -2162,6 +2469,26 @@ function startBattle() {
   if (zeroOwner) {
     gameState.players.forEach(p => {
       if (p.id !== zeroOwner.id) p.teamSpeedMult *= 0.88;
+    });
+  }
+  // POWER: Pyroclasm → adversaires -12% maxHP au début
+  const pyroOwner = gameState.players.find(p => p.power === 'pyroclasm');
+  if (pyroOwner) {
+    gameState.players.forEach(p => {
+      if (p.id === pyroOwner.id) return;
+      [...p.team, ...(p.fusionReserve || [])].forEach(m => {
+        m.maxHP = Math.max(1, Math.round(m.maxHP * 0.88));
+        m.currentHP = m.maxHP;
+      });
+    });
+  }
+  // POWER: Divine Shield → ses Pokémon démarrent à 110% PV max
+  const shieldOwner = gameState.players.find(p => p.power === 'divineShield');
+  if (shieldOwner) {
+    [...shieldOwner.team, ...(shieldOwner.fusionReserve || [])].forEach(m => {
+      m.maxHP = Math.round(m.maxHP * 1.10);
+      m.currentHP = m.maxHP;
+      m._firstHitTaken = false;
     });
   }
 
@@ -2270,13 +2597,41 @@ async function promptCurrentPlayer() {
     }
   }
   const items = player.items || { maxPotion: 0, maxRevive: 0 };
+  const pos = (gameState.turnPointer + 1) + '/' + gameState.turnOrder.length;
   $('current-player-label').innerHTML =
-    `<span>➤ Tour de <strong>${player.name}</strong> — ${mon.name.toUpperCase()}</span>` +
+    `<span>➤ Tour de <strong>${player.name}</strong> — ${mon.name.toUpperCase()} <span class="position-badge">📍 ${pos}</span></span>` +
     `<span class="items-display">` +
       `<span class="item-pill${items.maxPotion ? '' : ' empty'}">🧪 Potion Max × ${items.maxPotion}</span>` +
       `<span class="item-pill${items.maxRevive ? '' : ' empty'}">💎 Rappel Max × ${items.maxRevive}</span>` +
     `</span>`;
+  // AI auto-play
+  if (player.isAI) {
+    await runAITurn(player, mon);
+    return;
+  }
   renderActionMenu(player, mon);
+}
+
+// Simple strategic AI: best-score (power × eff × stab × acc) move + target
+async function runAITurn(player, mon) {
+  $('action-row').innerHTML = '<div class="ai-thinking">🤖 IA RÉFLÉCHIT…</div>';
+  await sleep(900);
+  const enemies = activePlayers()
+    .filter(p => p.id !== player.id)
+    .map(p => ({ p, m: activePokemon(p) }))
+    .filter(x => x.m && !x.m.fainted);
+  if (enemies.length === 0) { advanceTurn(); return; }
+  let best = { score: -1, move: null, targetP: null, targetM: null };
+  for (const mv of mon.moves) {
+    for (const e of enemies) {
+      const eff = effectiveness(mv.type, e.m.types);
+      const stab = mon.types.includes(mv.type) ? 1.5 : 1;
+      const score = (mv.power || 0) * Math.max(eff, 0.01) * stab * ((mv.accuracy || 100) / 100);
+      if (score > best.score) best = { score, move: mv, targetP: e.p, targetM: e.m };
+    }
+  }
+  if (!best.move) { advanceTurn(); return; }
+  await performAttack(player, mon, best.move, best.targetP, best.targetM);
 }
 
 function renderActionMenu(player, mon) {
@@ -2314,6 +2669,7 @@ function renderActionMenu(player, mon) {
 }
 
 function canBattleFuse(player, activeMon) {
+  if (gameState.fusionUsedThisBattle) return false; // 1 fusion per battle TOTAL (all players)
   if (player.fusionUsed) return false;
   if (!activeMon || activeMon.fainted) return false;
   if (activeMon.isFusion) return false;
@@ -2371,6 +2727,7 @@ async function performFusion(player, monA, monB) {
   player.team.push(fused);
   player.activeIdx = player.team.indexOf(fused);
   player.fusionUsed = true;
+  gameState.fusionUsedThisBattle = true; // global lock: 1 fusion per battle
   fused._entered = true; // skip entry splash since fusion splash plays
 
   log(`${player.name} déclenche la FUSION : ${monA.name.toUpperCase()} + ${monB.name.toUpperCase()} → ${fused.name.toUpperCase()} !`, 'crit');
@@ -2551,15 +2908,36 @@ async function performAttack(atkPlayer, atkMon, move, defPlayer, defMon) {
   const weather = weatherDmgMult(move);
   let damage = Math.floor(base * eff * stab * weather);
 
-  const isCrit = Math.random() < critChance(move.critRate);
+  // POWER: Spectral Storm → +10% crit chance pour le owner
+  let critProb = critChance(move.critRate);
+  if (atkPlayer.power === 'spectralStorm') critProb = Math.min(1, critProb + 0.10);
+  const isCrit = Math.random() < critProb;
   if (isCrit) damage = Math.floor(damage * 1.5);
 
   if (atkMon.heldItem?.effect === 'lifeOrb') damage = Math.floor(damage * 1.3);
 
-  // POWER: accuracy modifiers (ghost dragon +20%, fog -1/stack)
+  // POWER: Blood Pact → +15% si PV attaquant < 50%
+  if (atkPlayer.power === 'bloodPact' && atkMon.currentHP < atkMon.maxHP * 0.5) {
+    damage = Math.floor(damage * 1.15);
+  }
+  // POWER: Pyroclasm → moves feu +30% dmg
+  if (atkPlayer.power === 'pyroclasm' && move.type === 'fire') {
+    damage = Math.floor(damage * 1.30);
+  }
+  // POWER: Divine Shield → première attaque reçue ×0.4
+  if (defPlayer.power === 'divineShield' && defMon._firstHitTaken === false) {
+    damage = Math.floor(damage * 0.4);
+    defMon._firstHitTaken = true;
+    log(`Sentinelle Divine atténue le premier coup sur ${defMon.name.toUpperCase()} !`, 'heal');
+  }
+
+  // POWER: accuracy modifiers (ghost dragon +20%, fog -1/stack, spectral storm -15% sur rivaux, divine shield owner attacks unchanged)
   let acc = move.accuracy || 100;
   if (atkPlayer.power === 'ghostDragon') acc = Math.min(100, acc * 1.20);
   acc -= (gameState.fogStacks || 0);
+  // Spectral Storm: attackers other than the owner suffer -15% acc
+  const spectralOwner = gameState.players.find(p => p.power === 'spectralStorm' && !p.eliminated);
+  if (spectralOwner && atkPlayer.id !== spectralOwner.id) acc -= 15;
 
   // POWER: Genjutsu evasion → defender's owner gains +7% evasion each time targeted
   if (defPlayer.power === 'genjutsu') {
@@ -2695,6 +3073,14 @@ async function performAttack(atkPlayer, atkMon, move, defPlayer, defMon) {
     triggerFinisherAnim(atkPlayer.id);
     flashScreen();
     applyTeamDeathBuff(defPlayer);
+    // POWER: Blood Pact → heal owner's attacker 25% PV on KO
+    if (atkPlayer.power === 'bloodPact' && !atkMon.fainted) {
+      const heal = Math.floor(atkMon.maxHP * 0.25);
+      atkMon.currentHP = Math.min(atkMon.maxHP, atkMon.currentHP + heal);
+      log(`Pacte de Sang : ${atkMon.name.toUpperCase()} se nourrit du K.O. (+${heal} PV).`, 'heal');
+      showFloatingText(atkPlayer.id, '+' + heal, 'super');
+      updateHPBar(atkPlayer.id, atkMon);
+    }
     await sleep(1600);
     handlePostKO(defPlayer);
     return;
@@ -2912,11 +3298,18 @@ function showTeamsPreview() {
       const shiny = m.isShiny ? '<span class="shiny-mark">✨</span>' : '';
       const types = m.types.map(t => `<span class="type-pill t-${t}">${t.slice(0,3)}</span>`).join('');
       const fusionTag = isFusionOnly ? '<div class="fusion-only-tag" style="margin-top:3px;">FUSION</div>' : '';
+      const ivStr = `${m.ivs.hp}/${m.ivs.attack}/${m.ivs.defense}/${m.ivs.spAtk}/${m.ivs.spDef}/${m.ivs.speed}`;
+      const natureTxt = m.nature ? `${m.nature}` : '';
+      const itemTxt = m.heldItem ? `🎒 ${m.heldItem.name}` : '';
+      const megaCap = (m.megaForms && m.megaForms.length > 0) ? '<span style="color:#ff5fb0;text-shadow:0 0 6px #ff5fb0;" title="Méga-Évolution possible">Ⓜ</span> ' : '';
       monsHtml += `
         <div class="preview-mon">
           <img src="${m.spriteStatic || m.sprite}" alt="${m.name}" />
-          <div class="pm-name">${shiny}${m.name}</div>
+          <div class="pm-name">${megaCap}${shiny}${m.name}</div>
           <div class="pm-types">${types}</div>
+          ${natureTxt ? `<div class="pm-nature">${natureTxt}</div>` : ''}
+          <div class="pm-ivs" title="HP/ATQ/DEF/ATS/DES/VIT">${ivStr}</div>
+          ${itemTxt ? `<div class="pm-item">${itemTxt}</div>` : ''}
           ${fusionTag}
         </div>`;
     }
@@ -2984,6 +3377,30 @@ const POWERS = {
     icon: '🌫️',
     short: 'Brume',
     desc: 'Brouillard −1% précision par manche à tous. Quand un ennemi te cible, +7% esquive. Si tu esquives, clone électrique : 10% PV max de l\'attaquant en dégâts.'
+  },
+  bloodPact: {
+    name: 'Pacte de Sang',
+    icon: '🩸',
+    short: 'Sang',
+    desc: 'Chaque K.O. d\'un ennemi soigne ton Pokémon actif de 25% PV max. Tes attaques infligent +15% si ton PV est < 50%.'
+  },
+  spectralStorm: {
+    name: 'Tempête Spectrale',
+    icon: '🌪️',
+    short: 'Tempête',
+    desc: 'Précision globale adverse réduite de 15% en permanence. Tes Pokémon ont +10% chance de coup critique.'
+  },
+  pyroclasm: {
+    name: 'Cataclysme Pyroclastique',
+    icon: '🌋',
+    short: 'Lave',
+    desc: 'Au début du combat, tous adversaires perdent 12% PV max. Tes attaques feu +30% dégâts.'
+  },
+  divineShield: {
+    name: 'Sentinelle Divine',
+    icon: '🛡️',
+    short: 'Bouclier',
+    desc: 'Première attaque reçue par chaque Pokémon : dégâts ×0.4. Tes Pokémon démarrent à 110% PV max.'
   }
 };
 
@@ -3198,7 +3615,7 @@ function canMega(player, mon) {
   if (!mon || mon.fainted) return false;
   if (!mon.megaForms || mon.megaForms.length === 0) return false;
   if (mon.isMega) return false;
-  if (gameState.turnNumber < (player.megaCooldownUntil || 0)) return false;
+  if (player.megaUsed) return false; // 1 mega per player per battle TOTAL
   return true;
 }
 async function activateMega(player, mon) {
@@ -3230,7 +3647,7 @@ async function activateMega(player, mon) {
   mon.isMega = true;
   mon.megaName = megaSlug;
 
-  player.megaCooldownUntil = gameState.turnNumber + 3;
+  player.megaUsed = true;
 
   log(`${player.name} déclenche la MÉGA-ÉVOLUTION de ${mon.name.toUpperCase()} !`, 'crit');
   await showEntrySplash(mon, player.name, { mega: true });
@@ -3391,8 +3808,12 @@ function renderBattle() {
     const fusionMark = mon.isFusion ? '<span class="fusion-mark">🔀</span>' : '';
     const powerBadge = p.power ? `<span class="power-badge" title="${POWERS[p.power].name}">${POWERS[p.power].icon}</span>` : '';
     const statusBadge = mon.status ? `<div class="status-icon" title="${mon.status}">${statusIcon(mon.status)}</div>` : '';
+    // Mega-capable badge (only if can still mega: not used yet AND not currently mega)
+    const canMegaThisMon = !mon.isMega && mon.megaForms && mon.megaForms.length > 0 && !p.megaUsed;
+    const megaBadge = canMegaThisMon ? '<div class="mega-capable-badge" title="Méga-Évolution disponible">Ⓜ</div>' : '';
     slot.innerHTML = `
       ${turnMarker}
+      ${megaBadge}
       ${statusBadge}
       <div class="player-tag">${p.name}${powerBadge}</div>
       <div class="sprite-wrap"><img src="${mon.sprite || mon.spriteStatic}" alt="${mon.name}" /></div>
@@ -3405,6 +3826,32 @@ function renderBattle() {
   }
 
   renderTeamsPanel();
+  renderTurnQueue();
+}
+
+function renderTurnQueue() {
+  const q = $('turn-queue');
+  if (!q) return;
+  q.innerHTML = '';
+  const order = gameState.turnOrder || [];
+  const ptr = gameState.turnPointer;
+  order.forEach((entry, idx) => {
+    const p = gameState.players[entry.playerId];
+    if (!p || p.eliminated) return;
+    const mon = activePokemon(p);
+    if (!mon) return;
+    const chip = document.createElement('div');
+    chip.className = 'queue-chip'
+      + (idx === ptr ? ' current' : '')
+      + (idx < ptr ? ' done' : '')
+      + (p.isAI ? ' ai' : '');
+    chip.innerHTML = `
+      <span class="queue-pos">${idx + 1}</span>
+      <img src="${mon.spriteStatic || mon.sprite}" alt="${mon.name}" />
+      <span class="queue-name">${p.name}</span>
+    `;
+    q.appendChild(chip);
+  });
 }
 
 function renderTeamsPanel() {
