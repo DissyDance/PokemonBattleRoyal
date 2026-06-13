@@ -684,6 +684,163 @@
     40% { transform: perspective(800px) rotateY(540deg) scale(1.3); opacity: 1; }
     100% { transform: perspective(800px) rotateY(720deg) scale(1); opacity: 1; }
   }
+  /* Reorder arrows on team-slot */
+  .reorder-row {
+    display: flex; gap: 2px; justify-content: center; margin-top: 4px;
+  }
+  .reorder-btn {
+    font-family: 'Press Start 2P', monospace; font-size: 9px;
+    padding: 3px 6px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: #cdd3e0;
+    border-radius: 5px; cursor: pointer;
+    transition: background 0.15s ease;
+  }
+  .reorder-btn:hover:not(:disabled) { background: rgba(245,166,35,0.25); color: #fff; }
+  .reorder-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+  /* Fusion-only slot badge */
+  .team-slot.fusion-only {
+    border: 2px dashed rgba(0,212,255,0.6);
+    border-radius: 8px;
+    padding: 4px;
+  }
+  .team-slot .fusion-only-tag {
+    font-family: 'Press Start 2P', monospace; font-size: 7px;
+    background: rgba(0,212,255,0.2); color: #4ecdc4;
+    border: 1px solid rgba(0,212,255,0.5);
+    padding: 2px 5px; border-radius: 6px;
+    margin-top: 4px; display: inline-block;
+  }
+
+  /* Modal overlay (type wheel + team preview) */
+  .modal-overlay {
+    position: fixed; inset: 0; z-index: 250;
+    background: rgba(0,0,0,0.78);
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    display: flex; align-items: center; justify-content: center;
+    animation: modalFade 0.25s ease forwards;
+  }
+  @keyframes modalFade { from { opacity: 0; } to { opacity: 1; } }
+  .modal-card {
+    background: rgba(22, 33, 62, 0.92);
+    border: 2px solid var(--accent-2);
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 0 60px rgba(245,166,35,0.4), 0 0 120px rgba(233,69,96,0.2);
+    max-width: 95vw; max-height: 90vh; overflow: auto;
+  }
+  .modal-card h2 {
+    margin: 0 0 16px 0; text-align: center; font-size: 22px;
+    letter-spacing: 4px;
+    background: linear-gradient(180deg, #ffe27a 0%, #f5a623 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .modal-card .close-modal { margin-top: 18px; display: block; margin-left: auto; margin-right: auto; }
+
+  /* Type chart matrix */
+  .type-chart {
+    display: grid;
+    grid-template-columns: repeat(19, 32px);
+    gap: 1px;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 8px;
+  }
+  .type-chart .tc-corner { background: rgba(0,0,0,0.5); border-radius: 4px; }
+  .type-chart .tc-head {
+    width: 32px; height: 32px;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff;
+    text-transform: uppercase;
+    border-radius: 4px;
+    font-size: 7px;
+    text-align: center;
+    line-height: 1.1;
+  }
+  .type-chart .tc-cell {
+    width: 32px; height: 32px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 4px;
+    background: rgba(255,255,255,0.05);
+    color: #888;
+  }
+  .type-chart .tc-cell.x2 { background: #2a8c3f; color: #fff; }
+  .type-chart .tc-cell.x4 { background: #1f6f2e; color: #fff; box-shadow: inset 0 0 0 2px #2ecc71; }
+  .type-chart .tc-cell.x05 { background: #6a4225; color: #fff; }
+  .type-chart .tc-cell.x025 { background: #4a2a18; color: #fff; }
+  .type-chart .tc-cell.x0 { background: #000; color: #ff7a90; }
+  .type-chart .tc-cell.x1 { background: rgba(255,255,255,0.04); }
+  .type-chart-legend {
+    display: flex; gap: 12px; justify-content: center; margin-top: 14px;
+    font-family: 'Orbitron', sans-serif; font-size: 11px; color: var(--muted);
+    flex-wrap: wrap;
+  }
+  .type-chart-legend span { display: inline-flex; align-items: center; gap: 4px; }
+  .type-chart-legend i { width: 14px; height: 14px; border-radius: 3px; display: inline-block; }
+  .type-chart-axis {
+    text-align: center; margin: 6px 0; font-size: 10px;
+    color: var(--muted); font-family: 'Press Start 2P', monospace;
+  }
+
+  /* Type-colored move buttons */
+  button.move-btn {
+    position: relative;
+    padding-left: 22px;
+    text-align: left;
+  }
+  button.move-btn::before {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+    width: 8px;
+    background: var(--type-color, #888);
+    border-radius: 8px 0 0 8px;
+    box-shadow: 0 0 10px var(--type-color, transparent);
+  }
+  button.move-btn .move-type-tag {
+    font-size: 8px; letter-spacing: 1px; color: var(--type-color, #ccc);
+    text-transform: uppercase;
+  }
+
+  /* Effectiveness pills on target picker */
+  .eff-pill {
+    font-family: 'Press Start 2P', monospace; font-size: 8px;
+    padding: 3px 6px; border-radius: 6px;
+    margin-left: 6px; display: inline-block;
+  }
+  .eff-super  { background: #1f6f2e; color: #5ee59a; box-shadow: 0 0 8px rgba(94,229,154,0.4); }
+  .eff-normal { background: rgba(255,255,255,0.1); color: #cdd3e0; }
+  .eff-weak   { background: #6a4225; color: #f5a623; }
+  .eff-none   { background: #000; color: #ff7a90; box-shadow: 0 0 8px rgba(255,122,144,0.4); }
+
+  /* Team preview modal */
+  .preview-teams { display: flex; flex-direction: column; gap: 14px; min-width: 600px; }
+  .preview-team-card {
+    background: rgba(15,22,38,0.7); border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px; padding: 12px;
+  }
+  .preview-team-card .team-head {
+    font-family: 'Orbitron', sans-serif; font-weight: 800; font-size: 14px;
+    color: var(--accent-2); letter-spacing: 3px; text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .preview-team-mons {
+    display: flex; gap: 8px; flex-wrap: wrap;
+  }
+  .preview-mon {
+    background: rgba(15,22,38,0.85); border-radius: 8px; padding: 6px;
+    width: 90px; text-align: center; border: 1px solid rgba(255,255,255,0.06);
+    position: relative;
+  }
+  .preview-mon img { width: 64px; height: 64px; image-rendering: pixelated; }
+  .preview-mon .pm-name { font-size: 10px; color: var(--txt); text-transform: capitalize; }
+  .preview-mon .pm-types { display: flex; gap: 2px; justify-content: center; margin-top: 2px; }
+
+  /* Type wheel button (in setup/battle) */
+  .type-wheel-btn {
+    font-size: 9px !important;
+    padding: 8px 12px !important;
+  }
+
   /* DRAFT screen */
   #draft-screen { padding: 30px 20px; max-width: 1200px; margin: 0 auto; }
   #draft-screen h1 {
@@ -1173,6 +1330,7 @@
       <option value="5">5</option>
     </select>
     <button id="apply-count">APPLIQUER</button>
+    <button class="type-wheel-btn" onclick="showTypeWheel()">🎯 ROUE TYPES</button>
   </div>
 
   <div id="players-grid" class="players-grid"></div>
@@ -1197,6 +1355,7 @@
   <div class="battle-header">
     <h1>BATTLE ROYALE</h1>
     <div style="display:flex;align-items:center;gap:8px;">
+      <button class="type-wheel-btn" onclick="showTypeWheel()">🎯 TYPES</button>
       <div class="weather-banner" id="weather-banner"><span class="weather-icon">☀️</span><span id="weather-text">Soleil</span></div>
       <div class="turn-indicator" id="turn-indicator">TOUR 1</div>
     </div>
@@ -1632,30 +1791,34 @@ async function buildPokemon(frName, isStarter) {
   return mon;
 }
 
-// Pick up to 4 strongest moves, prefer type diversity
+// Pick top 4 BEST moves (score = power × accuracy × STAB) the pokémon can actually learn
 async function selectMoves(pokemonData) {
-  // Larger candidate pool now that we want 4 moves
   const candidates = pokemonData.moves.slice(0, 40);
+  const ownTypes = pokemonData.types.map(t => t.type.name);
   const fetched = [];
   for (const m of candidates) {
     try {
       const md = await fetchMoveQueued(m.move.url);
       if (md.power && md.power > 0) {
+        const stab = ownTypes.includes(md.type.name) ? 1.5 : 1.0;
+        const acc = md.accuracy || 100;
+        const score = md.power * (acc / 100) * stab;
         fetched.push({
           name: md.name,
           power: md.power,
           type: md.type.name,
-          damageClass: md.damage_class.name, // physical | special | status
-          accuracy: md.accuracy || 100,
+          damageClass: md.damage_class.name,
+          accuracy: acc,
           critRate: md.meta?.crit_rate ?? 0,
-          priority: md.priority ?? 0
+          priority: md.priority ?? 0,
+          score
         });
       }
     } catch (e) { /* skip */ }
   }
-  fetched.sort((a, b) => b.power - a.power);
+  fetched.sort((a, b) => b.score - a.score);
 
-  // Pass 1: greedy pick strongest of each new type until 4 slots full
+  // Pass 1: greedy best-of-each-type for diversity (up to 4 slots)
   const chosen = [];
   const usedTypes = new Set();
   for (const mv of fetched) {
@@ -1665,7 +1828,7 @@ async function selectMoves(pokemonData) {
       usedTypes.add(mv.type);
     }
   }
-  // Pass 2: fill remaining slots with next strongest (allow duplicate types)
+  // Pass 2: backfill slots with next best regardless of type
   if (chosen.length < 4) {
     for (const mv of fetched) {
       if (chosen.length >= 4) break;
@@ -1673,7 +1836,7 @@ async function selectMoves(pokemonData) {
     }
   }
   if (chosen.length === 0) {
-    chosen.push({ name: 'struggle', power: 50, type: pokemonData.types[0].type.name, damageClass: 'physical', accuracy: 100 });
+    chosen.push({ name: 'struggle', power: 50, type: ownTypes[0], damageClass: 'physical', accuracy: 100, critRate: 0, priority: 0, score: 50 });
   }
   return chosen;
 }
@@ -1818,17 +1981,25 @@ function renderTeam(card, player) {
   list.style.gap = '10px';
 
   player.team.forEach((mon, i) => {
+    const isFusionSlot = (i === 6); // 7th slot = fusion-only
     const slot = el('div', {
       className: 'team-slot'
         + (mon.isStarter ? ' starter' : '')
         + (mon.isShiny ? ' shiny' : '')
+        + (isFusionSlot ? ' fusion-only' : '')
     });
     slot.style.width = '110px';
     const shinyMark = mon.isShiny ? '<span class="shiny-mark" title="Shiny !">✨</span>' : '';
+    const fusionTag = isFusionSlot ? '<div class="fusion-only-tag">FUSION SLOT</div>' : '';
     slot.innerHTML = `
       <img src="${mon.spriteStatic || mon.sprite}" alt="${mon.name}" style="width:96px;height:96px;" />
       <div class="pname">${shinyMark}${mon.name}</div>
       ${ivGridHTML(mon.ivs)}
+      ${fusionTag}
+      <div class="reorder-row">
+        <button class="reorder-btn left" title="Reculer" ${i === 0 ? 'disabled' : ''}>◀</button>
+        <button class="reorder-btn right" title="Avancer" ${i === player.team.length - 1 ? 'disabled' : ''}>▶</button>
+      </div>
       <button class="remove-btn" title="Retirer">×</button>
     `;
     slot.querySelector('.remove-btn').addEventListener('click', () => {
@@ -1839,6 +2010,14 @@ function renderTeam(card, player) {
       }
       renderTeam(card, player);
       updateLaunchBtn();
+    });
+    slot.querySelector('.reorder-btn.left').addEventListener('click', () => {
+      swapTeamSlots(player, i, i - 1);
+      renderTeam(card, player);
+    });
+    slot.querySelector('.reorder-btn.right').addEventListener('click', () => {
+      swapTeamSlots(player, i, i + 1);
+      renderTeam(card, player);
     });
     list.appendChild(slot);
   });
@@ -1900,8 +2079,12 @@ function renderDraft() {
     $('draft-grid').innerHTML = '';
     const sum = $('draft-summary');
     sum.innerHTML = '';
+    const previewBtn = el('button', { textContent: '👁️ APERÇU ÉQUIPES' });
+    previewBtn.style.marginRight = '12px';
+    previewBtn.addEventListener('click', () => showTeamsPreview());
     const btn = el('button', { className: 'primary', textContent: '⚔ COMMENCER LE COMBAT ⚔' });
     btn.addEventListener('click', () => startBattle());
+    sum.appendChild(previewBtn);
     sum.appendChild(btn);
     return;
   }
@@ -1945,9 +2128,14 @@ function pickPower(powerKey) {
    ============================================================ */
 
 function startBattle() {
-  // Fisher-Yates shuffle each team + grant starter items + reset combat state
+  // Keep user-defined order. Split off 7th into fusion-only reserve.
   gameState.players.forEach(p => {
-    shuffle(p.team);
+    if (p.team.length === 7) {
+      p.fusionReserve = [p.team[6]];
+      p.team = p.team.slice(0, 6);
+    } else {
+      p.fusionReserve = p.fusionReserve || [];
+    }
     p.activeIdx = 0;
     p.eliminated = false;
     p.items = { maxPotion: 1, maxRevive: 1 };
@@ -1956,7 +2144,7 @@ function startBattle() {
     p.fusionUsed = false;
     p.teamSpeedMult = p.teamSpeedMult || 1.0;
     p.evasionStack = 0;
-    p.team.forEach(m => {
+    [...p.team, ...(p.fusionReserve || [])].forEach(m => {
       m._entered = false;
       m.status = null;
       m.frozenTurns = 0;
@@ -2129,14 +2317,25 @@ function canBattleFuse(player, activeMon) {
   if (player.fusionUsed) return false;
   if (!activeMon || activeMon.fainted) return false;
   if (activeMon.isFusion) return false;
-  const partners = player.team.filter(m => m !== activeMon && !m.fainted && !m.isFusion);
+  const pool = [...player.team, ...(player.fusionReserve || [])];
+  const partners = pool.filter(m => m !== activeMon && !m.fainted && !m.isFusion);
   return partners.length >= 1;
+}
+
+function removeFromTeamOrReserve(player, mon) {
+  let idx = player.team.indexOf(mon);
+  if (idx >= 0) { player.team.splice(idx, 1); return; }
+  if (player.fusionReserve) {
+    idx = player.fusionReserve.indexOf(mon);
+    if (idx >= 0) player.fusionReserve.splice(idx, 1);
+  }
 }
 
 function renderFusionPickMenu(player, activeMon) {
   const row = $('action-row');
   row.innerHTML = '';
-  const candidates = player.team.filter(m => m !== activeMon && !m.fainted && !m.isFusion);
+  const pool = [...player.team, ...(player.fusionReserve || [])];
+  const candidates = pool.filter(m => m !== activeMon && !m.fainted && !m.isFusion);
   candidates.forEach(m => {
     const b = el('button', { className: 'fusion-action-btn' });
     b.innerHTML = `${m.name.toUpperCase()}<span class="move-info">PV ${m.currentHP}/${m.maxHP} · fusion avec ${activeMon.name}</span>`;
@@ -2166,10 +2365,9 @@ async function performFusion(player, monA, monB) {
     fused.currentHP = Math.max(1, Math.round(fused.maxHP * ((ratioA + ratioB) / 2)));
   }
 
-  // Remove the 2 parents from team
-  const idxA = player.team.indexOf(monA);
-  const idxB = player.team.indexOf(monB);
-  [idxA, idxB].sort((x, y) => y - x).forEach(i => player.team.splice(i, 1));
+  // Remove the 2 parents from team / fusion reserve
+  removeFromTeamOrReserve(player, monA);
+  removeFromTeamOrReserve(player, monB);
   player.team.push(fused);
   player.activeIdx = player.team.indexOf(fused);
   player.fusionUsed = true;
@@ -2252,8 +2450,10 @@ function renderMoveMenu(player, mon) {
   const row = $('action-row');
   row.innerHTML = '';
   mon.moves.forEach(mv => {
-    const b = el('button', { });
-    b.innerHTML = `${mv.name.toUpperCase()}<span class="move-info">${mv.type} · pwr ${mv.power}</span>`;
+    const color = TYPE_COLOR[mv.type] || '#888';
+    const b = el('button', { className: 'move-btn' });
+    b.style.setProperty('--type-color', color);
+    b.innerHTML = `${mv.name.toUpperCase()}<span class="move-info"><span class="move-type-tag">${mv.type}</span> · pwr ${mv.power} · acc ${mv.accuracy}</span>`;
     b.addEventListener('click', () => renderTargetMenu(player, mon, mv));
     row.appendChild(b);
   });
@@ -2272,8 +2472,10 @@ function renderTargetMenu(player, mon, move) {
     if (t && !t.fainted) targets.push({ player: p, mon: t });
   }
   targets.forEach(t => {
+    const e = effectiveness(move.type, t.mon.types);
+    const lbl = effLabel(e);
     const b = el('button', { });
-    b.innerHTML = `${t.player.name}<span class="move-info">${t.mon.name.toUpperCase()} — PV ${t.mon.currentHP}/${t.mon.maxHP}</span>`;
+    b.innerHTML = `${t.player.name} <span class="eff-pill ${lbl.cls}">${lbl.txt}</span><span class="move-info">${t.mon.name.toUpperCase()} — PV ${t.mon.currentHP}/${t.mon.maxHP} · ×${e}</span>`;
     b.addEventListener('click', () => performAttack(player, mon, move, t.player, t.mon));
     row.appendChild(b);
   });
@@ -2653,6 +2855,108 @@ async function buildFusion(a, b) {
     isStarter: a.isStarter || b.isStarter,
     fainted: false
   };
+}
+
+// ---------- TYPE CHART MODAL ----------
+const ALL_TYPES = ['normal','fire','water','electric','grass','ice','fighting','poison','ground','flying','psychic','bug','rock','ghost','dragon','dark','steel','fairy'];
+
+function showTypeWheel() {
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  // Build matrix HTML
+  let cells = '<div class="tc-corner tc-head" style="font-size:7px;">ATQ ↓<br>DEF →</div>';
+  for (const def of ALL_TYPES) {
+    cells += `<div class="tc-head t-${def}">${def.slice(0,4)}</div>`;
+  }
+  for (const atk of ALL_TYPES) {
+    cells += `<div class="tc-head t-${atk}">${atk.slice(0,4)}</div>`;
+    for (const def of ALL_TYPES) {
+      const m = (TYPE_CHART[atk] && TYPE_CHART[atk][def] !== undefined) ? TYPE_CHART[atk][def] : 1;
+      let cls = 'x1', lbl = '1';
+      if (m === 0) { cls = 'x0'; lbl = '0'; }
+      else if (m === 0.5) { cls = 'x05'; lbl = '½'; }
+      else if (m === 0.25) { cls = 'x025'; lbl = '¼'; }
+      else if (m === 2) { cls = 'x2'; lbl = '2'; }
+      else if (m === 4) { cls = 'x4'; lbl = '4'; }
+      cells += `<div class="tc-cell ${cls}" title="${atk} → ${def}: ×${m}">${lbl}</div>`;
+    }
+  }
+  overlay.innerHTML = `
+    <div class="modal-card">
+      <h2>🎯 Roue des Types</h2>
+      <div class="type-chart-axis">Lignes = type d'attaque · Colonnes = type du défenseur</div>
+      <div class="type-chart">${cells}</div>
+      <div class="type-chart-legend">
+        <span><i style="background:#1f6f2e"></i> ×4 / ×2 super</span>
+        <span><i style="background:rgba(255,255,255,0.1)"></i> ×1 normal</span>
+        <span><i style="background:#6a4225"></i> ×½ / ×¼ peu</span>
+        <span><i style="background:#000"></i> ×0 aucun</span>
+      </div>
+      <button class="primary close-modal">FERMER</button>
+    </div>`;
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+  overlay.querySelector('.close-modal').addEventListener('click', () => overlay.remove());
+  document.body.appendChild(overlay);
+}
+
+// ---------- TEAM PREVIEW MODAL ----------
+function showTeamsPreview() {
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  let html = '<div class="preview-teams">';
+  for (const p of gameState.players) {
+    const teamMons = [...(p.team || []), ...(p.fusionReserve || [])];
+    let monsHtml = '';
+    for (const m of teamMons) {
+      const isFusionOnly = (p.fusionReserve || []).includes(m);
+      const shiny = m.isShiny ? '<span class="shiny-mark">✨</span>' : '';
+      const types = m.types.map(t => `<span class="type-pill t-${t}">${t.slice(0,3)}</span>`).join('');
+      const fusionTag = isFusionOnly ? '<div class="fusion-only-tag" style="margin-top:3px;">FUSION</div>' : '';
+      monsHtml += `
+        <div class="preview-mon">
+          <img src="${m.spriteStatic || m.sprite}" alt="${m.name}" />
+          <div class="pm-name">${shiny}${m.name}</div>
+          <div class="pm-types">${types}</div>
+          ${fusionTag}
+        </div>`;
+    }
+    const powerTxt = p.power ? `${POWERS[p.power].icon} ${POWERS[p.power].name}` : '';
+    html += `
+      <div class="preview-team-card">
+        <div class="team-head">${p.name}${powerTxt ? ' · ' + powerTxt : ''}</div>
+        <div class="preview-team-mons">${monsHtml}</div>
+      </div>`;
+  }
+  html += '</div>';
+  const card = document.createElement('div');
+  card.className = 'modal-card';
+  card.innerHTML = `<h2>👁️ Aperçu des équipes</h2>${html}<button class="primary close-modal">FERMER</button>`;
+  overlay.appendChild(card);
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+  card.querySelector('.close-modal').addEventListener('click', () => overlay.remove());
+  document.body.appendChild(overlay);
+}
+
+// ---------- EFFECTIVENESS LABEL ----------
+function effLabel(mult) {
+  if (mult === 0) return { txt: '∅ AUCUN EFFET', cls: 'eff-none' };
+  if (mult >= 2)  return { txt: (mult === 4 ? '💥💥 ÉCRASANT' : '💥 TRÈS EFFICACE'), cls: 'eff-super' };
+  if (mult < 1)   return { txt: (mult <= 0.25 ? '⚠⚠ TRÈS PEU' : '⚠ PEU EFFICACE'), cls: 'eff-weak' };
+  return { txt: '◦ NORMAL', cls: 'eff-normal' };
+}
+
+// ---------- TYPE COLORS (for move buttons) ----------
+const TYPE_COLOR = {
+  normal:'#a8a878', fire:'#f08030', water:'#6890f0', electric:'#f8d030', grass:'#78c850',
+  ice:'#98d8d8', fighting:'#c03028', poison:'#a040a0', ground:'#e0c068', flying:'#a890f0',
+  psychic:'#f85888', bug:'#a8b820', rock:'#b8a038', ghost:'#705898', dragon:'#7038f8',
+  dark:'#705848', steel:'#b8b8d0', fairy:'#ee99ac'
+};
+
+// ---------- TEAM REORDER HELPERS ----------
+function swapTeamSlots(player, i, j) {
+  if (i < 0 || j < 0 || i >= player.team.length || j >= player.team.length) return;
+  [player.team[i], player.team[j]] = [player.team[j], player.team[i]];
 }
 
 // ---------- SPECIAL POWERS (drafted pre-battle) ----------
