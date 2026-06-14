@@ -138,11 +138,56 @@
   .add-row { display: flex; gap: 6px; margin: 10px 0; }
   .add-row input { flex: 1; }
   .add-row button { padding: 8px 10px; font-size: 9px; }
-  .team-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; min-height: 80px; padding: 8px; background: var(--bg-3); border-radius: 6px; }
-  .team-slot { width: 72px; text-align: center; position: relative; }
-  .team-slot img { width: 64px; height: 64px; image-rendering: pixelated; background: #243056; border-radius: 6px; }
-  .team-slot .pname { font-size: 9px; color: var(--muted); margin-top: 2px; text-transform: capitalize; }
+  .team-list { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; min-height: 80px; padding: 8px; background: var(--bg-3); border-radius: 6px; }
+  .team-slot {
+    width: 124px; text-align: center; position: relative;
+    display: flex; flex-direction: column; align-items: center; gap: 5px;
+    padding: 10px 8px 8px;
+    background: rgba(15,22,38,0.5);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    transition: border-color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+  }
+  .team-slot:hover { transform: translateY(-2px); border-color: rgba(245,166,35,0.35); box-shadow: 0 6px 18px rgba(0,0,0,0.35); }
+  .team-slot .slot-portrait { line-height: 0; }
+  .team-slot img { width: 84px; height: 84px; image-rendering: pixelated; background: #243056; border-radius: 8px; }
+  .team-slot .slot-name {
+    font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: 11px;
+    color: var(--txt); text-transform: capitalize; line-height: 1.2;
+    max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .team-slot.starter { border-color: rgba(245,166,35,0.45); }
   .team-slot.starter img { border: 2px solid var(--accent-2); box-shadow: 0 0 10px var(--accent-2); }
+  /* Setup card chips (IV / item) + flags (départ / fusion) */
+  .slot-chips, .slot-flags { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; }
+  .slot-chip {
+    font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: 8px; letter-spacing: 0.5px;
+    padding: 3px 6px; border-radius: 6px; white-space: nowrap;
+    background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.12); color: var(--muted);
+  }
+  .slot-chip.iv { color: var(--accent-2); border-color: rgba(245,166,35,0.3); cursor: help; }
+  .slot-chip.iv.high { color: #f1c40f; border-color: rgba(241,196,15,0.5); }
+  .slot-chip.iv.perfect { color: #5ee59a; border-color: rgba(94,229,154,0.55); text-shadow: 0 0 6px rgba(94,229,154,0.5); }
+  .slot-chip.star { color: #5ee59a; border-color: rgba(94,229,154,0.5); cursor: help; }
+  .slot-chip.item { color: #c4a8ff; border-color: rgba(196,168,255,0.35); max-width: 108px; overflow: hidden; text-overflow: ellipsis; cursor: help; }
+  .slot-flag { font-family: 'Press Start 2P', monospace; font-size: 7px; padding: 3px 6px; border-radius: 6px; letter-spacing: 0.3px; }
+  .slot-flag.start  { background: rgba(245,166,35,0.16); color: var(--accent-2); border: 1px solid rgba(245,166,35,0.4); }
+  .slot-flag.fusion { background: rgba(0,212,255,0.16); color: #4ecdc4; border: 1px solid rgba(0,212,255,0.45); }
+  /* Unified action toolbar (reorder ◀▶ + star + rerolls) */
+  .slot-toolbar { display: flex; gap: 3px; justify-content: center; margin-top: 2px; }
+  .slot-toolbar button {
+    font-family: 'Press Start 2P', monospace; font-size: 9px;
+    width: 22px; height: 22px; padding: 0;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15);
+    color: #cdd3e0; border-radius: 6px; cursor: pointer;
+    transition: background 0.15s ease, transform 0.12s ease, border-color 0.15s ease;
+  }
+  .slot-toolbar button:hover:not(:disabled) { background: rgba(245,166,35,0.25); color: #fff; transform: translateY(-1px); border-color: var(--accent-2); }
+  .slot-toolbar button:disabled { opacity: 0.3; cursor: not-allowed; }
+  .slot-toolbar .star-btn { color: #f5a623; }
+  .slot-toolbar .roll-mon { color: #4ecdc4; }
+  .slot-toolbar .roll-item { color: #c4a8ff; }
   .team-slot .remove-btn {
     position: absolute; top: -6px; right: -6px; width: 18px; height: 18px;
     background: var(--accent); border: none; border-radius: 50%;
@@ -175,16 +220,22 @@
   }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  /* BATTLE SCREEN */
-  #battle-screen { padding: 14px 18px; max-width: 1600px; margin: 0 auto; }
+  /* BATTLE SCREEN — strictly fills the viewport: fixed flex column, no page scroll */
+  #battle-screen {
+    height: 100vh; height: 100dvh;
+    max-width: 1600px; margin: 0 auto;
+    padding: 10px 16px;
+    display: flex; flex-direction: column; gap: 10px;
+    overflow: hidden;
+  }
   .battle-header {
-    display: flex; justify-content: space-between; align-items: center; padding: 14px 22px;
+    flex: 0 0 auto;
+    display: flex; justify-content: space-between; align-items: center; padding: 10px 22px;
     background: rgba(22, 33, 62, 0.55);
     backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
     border: 1px solid rgba(233,69,96,0.3);
     border-radius: 14px;
     box-shadow: 0 8px 32px rgba(0,0,0,0.4), 0 0 40px rgba(233,69,96,0.1);
-    margin-bottom: 16px;
     position: relative; overflow: hidden;
   }
   .battle-header::before {
@@ -211,13 +262,13 @@
     color: var(--accent-2); letter-spacing: 4px; text-transform: uppercase;
     text-shadow: 0 0 10px rgba(245,166,35,0.5);
   }
-  .battle-main { display: grid; grid-template-columns: 1fr 320px; gap: 14px; }
+  .battle-main { flex: 1 1 auto; min-height: 0; display: grid; grid-template-columns: 1fr 320px; grid-template-rows: minmax(0, 1fr); gap: 14px; }
   .arena {
-    position: relative;
+    position: relative; height: 100%; min-height: 0;
     background:
       radial-gradient(ellipse 70% 40% at 50% 95%, rgba(245,166,35,0.10) 0%, transparent 70%),
       linear-gradient(180deg, #0a0f1e 0%, #1a1a2e 55%, #2a1f3e 100%);
-    border: 2px solid var(--border); border-radius: 12px; padding: 18px; min-height: 460px;
+    border: 2px solid var(--border); border-radius: 12px; padding: 18px;
     box-shadow: inset 0 0 80px rgba(0,0,0,0.5), 0 4px 24px rgba(0,0,0,0.4);
     overflow: hidden;
   }
@@ -327,7 +378,7 @@
   .hp-text { font-size: 10px; color: var(--muted); margin-top: 2px; font-family: 'Press Start 2P', monospace; }
   .hp-fill.low { animation: flashRed 0.6s ease-in-out infinite alternate; }
 
-  .side-panel { display: flex; flex-direction: column; gap: 12px; }
+  .side-panel { display: flex; flex-direction: column; gap: 12px; min-height: 0; }
   .teams-panel, .log-panel {
     background: rgba(22, 33, 62, 0.55);
     backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
@@ -336,7 +387,10 @@
     padding: 14px;
     box-shadow: 0 8px 32px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.04);
   }
-  .teams-panel h3, .log-panel h3 { margin: 0 0 8px 0; font-size: 11px; color: var(--accent-2); }
+  /* Teams panel takes up to ~half the column, scrolls internally if taller */
+  .teams-panel { flex: 0 1 auto; max-height: 50%; display: flex; flex-direction: column; min-height: 0; }
+  .teams-panel #teams-panel-content { overflow-y: auto; flex: 1; min-height: 0; padding-right: 4px; }
+  .teams-panel h3, .log-panel h3 { margin: 0 0 8px 0; font-size: 11px; color: var(--accent-2); flex: 0 0 auto; }
   .team-block { margin-bottom: 10px; padding: 6px; background: var(--bg-3); border-radius: 6px; }
   .team-block .team-name {
     font-family: 'Orbitron', sans-serif; font-weight: 800; font-size: 13px;
@@ -345,7 +399,7 @@
     margin-bottom: 6px;
   }
   .team-mini { display: flex; gap: 6px; flex-wrap: wrap; }
-  .mini-mon { width: 56px; text-align: center; position: relative; }
+  .mini-mon { width: 84px; text-align: center; position: relative; }
   .mini-mon img { width: 40px; height: 40px; image-rendering: pixelated; background: #243056; border-radius: 4px; }
   .mini-mon.fainted img { filter: grayscale(1) brightness(0.4); }
   .mini-mon.active-mon { box-shadow: 0 0 0 2px var(--accent-2); border-radius: 4px; }
@@ -353,22 +407,21 @@
   .mini-mon .mini-hp-fill { height: 100%; }
   .mini-mon .mini-name { font-size: 8px; color: var(--muted); text-transform: capitalize; }
 
-  .log-panel { flex: 1; min-height: 200px; max-height: 320px; display: flex; flex-direction: column; }
+  .log-panel { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
   .log { overflow-y: auto; flex: 1; font-size: 12px; padding-right: 6px; }
   .log p { margin: 0 0 4px 0; padding: 4px 6px; background: var(--bg-3); border-left: 3px solid var(--accent); border-radius: 3px; }
   .log p.crit { border-color: var(--accent-2); }
   .log p.ko { border-color: var(--bad); color: var(--bad); }
   .log p.heal { border-color: var(--ok); }
 
-  /* ACTION PANEL */
+  /* ACTION PANEL — fixed footer */
   .action-panel {
-    margin-top: 16px;
+    flex: 0 0 auto;
     background: rgba(22, 33, 62, 0.6);
     backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
     border: 1px solid rgba(245,166,35,0.35);
     border-radius: 14px;
-    padding: 16px 18px;
-    min-height: 100px;
+    padding: 12px 18px;
     box-shadow: 0 8px 32px rgba(0,0,0,0.4), 0 0 50px rgba(245,166,35,0.08);
   }
   .action-panel .current-player {
@@ -716,8 +769,7 @@
     box-shadow: 0 10px 36px rgba(0,0,0,0.4), 0 0 30px rgba(112,56,248,0.2);
   }
   .player-card.ai-mode .add-row,
-  .player-card.ai-mode .slot-actions,
-  .player-card.ai-mode .reorder-row,
+  .player-card.ai-mode .slot-toolbar,
   .player-card.ai-mode .reroll-counter,
   .player-card.ai-mode .remove-btn { display: none !important; }
   .ai-badge {
@@ -730,12 +782,12 @@
 
   /* Turn queue preview */
   .turn-queue {
+    flex: 0 0 auto;
     display: flex; gap: 6px; padding: 8px 12px;
     background: rgba(22, 33, 62, 0.55);
     backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
     border: 1px solid rgba(255,255,255,0.07);
     border-radius: 12px;
-    margin-bottom: 12px;
     overflow-x: auto;
     align-items: center;
   }
@@ -787,25 +839,6 @@
   @keyframes aiPulse { 0%,100% { opacity: 0.6; } 50% { opacity: 1; } }
 
   /* Slot action mini-buttons */
-  .slot-actions {
-    display: flex; gap: 2px; justify-content: center; margin-top: 4px;
-    flex-wrap: wrap;
-  }
-  .slot-actions button {
-    font-family: 'Press Start 2P', monospace; font-size: 9px;
-    padding: 3px 5px;
-    background: rgba(255,255,255,0.06);
-    border: 1px solid rgba(255,255,255,0.15);
-    color: #cdd3e0;
-    border-radius: 5px; cursor: pointer;
-    transition: background 0.15s ease, transform 0.12s ease;
-  }
-  .slot-actions button:hover:not(:disabled) { background: rgba(245,166,35,0.25); color: #fff; transform: translateY(-1px); }
-  .slot-actions button:disabled { opacity: 0.3; cursor: not-allowed; }
-  .slot-actions .star-btn { color: #f5a623; }
-  .slot-actions .roll-mon { color: #4ecdc4; }
-  .slot-actions .roll-item { color: #c4a8ff; }
-
   .reroll-counter {
     display: flex; justify-content: space-around;
     font-family: 'Press Start 2P', monospace; font-size: 9px;
@@ -832,48 +865,28 @@
     50% { transform: translateY(-2px) scale(1.08); }
   }
 
-  /* Preview IV grid + nature */
-  .preview-mon .pm-nature {
-    font-size: 9px; color: var(--accent-2); margin-top: 2px;
-    font-family: 'Press Start 2P', monospace;
+  /* Preview mon: chips row + labeled IV grid */
+  .preview-mon .pm-chips { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; margin-top: 5px; }
+  .slot-chip.nature { color: #b6e3ff; border-color: rgba(120,200,255,0.3); }
+  .preview-mon .pm-ivgrid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; margin-top: 6px;
   }
-  .preview-mon .pm-ivs {
-    font-size: 9px; color: #cdd3e0; margin-top: 3px;
-    font-family: 'Press Start 2P', monospace;
+  .preview-mon .iv-cell {
+    display: flex; flex-direction: column; align-items: center; gap: 1px;
+    font-family: 'Orbitron', sans-serif; font-size: 8px; line-height: 1;
+    padding: 3px 2px; border-radius: 5px;
+    background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08);
   }
-  .preview-mon .pm-item {
-    font-size: 8px; color: #c4a8ff; margin-top: 2px;
-    font-family: 'Press Start 2P', monospace;
-  }
-
-  /* Reorder arrows on team-slot */
-  .reorder-row {
-    display: flex; gap: 2px; justify-content: center; margin-top: 4px;
-  }
-  .reorder-btn {
-    font-family: 'Press Start 2P', monospace; font-size: 9px;
-    padding: 3px 6px;
-    background: rgba(255,255,255,0.06);
-    border: 1px solid rgba(255,255,255,0.15);
-    color: #cdd3e0;
-    border-radius: 5px; cursor: pointer;
-    transition: background 0.15s ease;
-  }
-  .reorder-btn:hover:not(:disabled) { background: rgba(245,166,35,0.25); color: #fff; }
-  .reorder-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+  .preview-mon .iv-cell i { font-style: normal; font-size: 6px; color: var(--muted); letter-spacing: 0.3px; }
+  .preview-mon .iv-cell b { font-weight: 700; color: #cdd3e0; }
+  .preview-mon .iv-cell.high b { color: #f1c40f; }
+  .preview-mon .iv-cell.max { border-color: rgba(94,229,154,0.5); background: rgba(46,204,113,0.12); }
+  .preview-mon .iv-cell.max b { color: #5ee59a; text-shadow: 0 0 6px rgba(94,229,154,0.5); }
 
   /* Fusion-only slot badge */
   .team-slot.fusion-only {
-    border: 2px dashed rgba(0,212,255,0.6);
-    border-radius: 8px;
-    padding: 4px;
-  }
-  .team-slot .fusion-only-tag {
-    font-family: 'Press Start 2P', monospace; font-size: 7px;
-    background: rgba(0,212,255,0.2); color: #4ecdc4;
-    border: 1px solid rgba(0,212,255,0.5);
-    padding: 2px 5px; border-radius: 6px;
-    margin-top: 4px; display: inline-block;
+    border-style: dashed;
+    border-color: rgba(0,212,255,0.5);
   }
 
   /* Modal overlay (type wheel + team preview) */
@@ -989,12 +1002,17 @@
     display: flex; gap: 8px; flex-wrap: wrap;
   }
   .preview-mon {
-    background: rgba(15,22,38,0.85); border-radius: 8px; padding: 6px;
-    width: 90px; text-align: center; border: 1px solid rgba(255,255,255,0.06);
+    background: rgba(15,22,38,0.85); border-radius: 10px; padding: 8px;
+    width: 108px; text-align: center; border: 1px solid rgba(255,255,255,0.06);
     position: relative;
   }
+  .preview-mon.fusion { border-color: rgba(0,212,255,0.4); border-style: dashed; }
   .preview-mon img { width: 64px; height: 64px; image-rendering: pixelated; }
-  .preview-mon .pm-name { font-size: 10px; color: var(--txt); text-transform: capitalize; }
+  .preview-mon .pm-name {
+    font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: 10px; color: var(--txt);
+    text-transform: capitalize; margin-top: 2px;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
   .preview-mon .pm-types { display: flex; gap: 2px; justify-content: center; margin-top: 2px; }
 
   /* Type wheel button (in setup/battle) */
@@ -1326,35 +1344,71 @@
   }
   .arena.screen-flash { animation: screenFlash 0.25s ease; }
 
-  /* IV badges — only perfect (31) IVs shown */
-  .iv-badges {
-    display: flex; flex-wrap: wrap; gap: 3px; justify-content: center;
-    margin-top: 5px;
+  /* ============================================================
+     POLISH PASS — consolidated component styles
+     (these replace one-off inline styles in the render code)
+     ============================================================ */
+  .config-bar .config-label { font-size: 11px; }
+  .header-tools { display: flex; align-items: center; gap: 8px; }
+
+  /* Setup: team count line */
+  .team-count-line { font-size: 10px; color: var(--muted); margin-top: 6px; }
+  .team-count-line .team-count { color: var(--accent-2); font-weight: bold; }
+
+  /* Draft: completion note (was inline hex) */
+  .draft-done-note { color: #7ad3a3; }
+
+  /* Type chart: corner label + legend swatches (was inline) */
+  .tc-corner.tc-head { font-size: 7px; }
+  .type-chart-legend i.super  { background: #1f6f2e; }
+  .type-chart-legend i.normal { background: rgba(255,255,255,0.1); }
+  .type-chart-legend i.weak   { background: #6a4225; }
+  .type-chart-legend i.none   { background: #000; }
+
+  /* Preview: mega-capable marker (was inline) */
+  .mega-cap { color: #ff5fb0; text-shadow: 0 0 6px #ff5fb0; }
+
+  /* Battle team panel: buff badge + inventory chips (was inline) */
+  .buff-badge {
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    color: #fff; padding: 2px 8px; border-radius: 8px; margin-left: 6px;
+    font-size: 11px; text-shadow: 0 0 6px rgba(0,0,0,0.4);
   }
-  .iv-badge {
-    font-family: 'Press Start 2P', monospace; font-size: 7px;
-    background: linear-gradient(135deg, rgba(46,204,113,0.25), rgba(46,204,113,0.10));
-    border: 1px solid rgba(46,204,113,0.5);
-    color: #5ee59a;
-    border-radius: 8px; padding: 3px 6px;
-    text-shadow: 0 0 6px rgba(94,229,154,0.6);
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
+  .team-inventory {
+    display: flex; gap: 12px; font-size: 9px; color: var(--muted);
+    margin-bottom: 6px; font-family: 'Press Start 2P', monospace;
   }
-  .iv-total {
-    font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: 9px;
-    letter-spacing: 1.5px; text-align: center; margin-top: 5px;
-    padding: 3px 6px; border-radius: 6px;
+  .team-inventory .inv-chip { display: inline-flex; align-items: center; gap: 4px; cursor: help; }
+  .team-inventory .inv-chip.empty { opacity: 0.4; }
+
+  /* Battle mini-panel: compact IV chip (declutter — full grid → one chip + tooltip) */
+  .iv-mini {
+    font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: 8px;
+    letter-spacing: 1px; margin-top: 3px; padding: 1px 5px; border-radius: 5px;
+    display: inline-block; cursor: help;
     background: rgba(0,0,0,0.35); color: var(--accent-2);
-    border: 1px solid rgba(245,166,35,0.25);
+    border: 1px solid rgba(245,166,35,0.22);
   }
-  .iv-total.high {
-    color: #f1c40f; border-color: rgba(241,196,15,0.5);
-    text-shadow: 0 0 6px rgba(241,196,15,0.4);
+  .iv-mini.high    { color: #f1c40f; border-color: rgba(241,196,15,0.45); }
+  .iv-mini.perfect {
+    color: #5ee59a; border-color: rgba(94,229,154,0.55);
+    text-shadow: 0 0 6px rgba(94,229,154,0.5);
   }
-  .iv-total.perfect {
-    color: #5ee59a; border-color: rgba(94,229,154,0.6);
-    text-shadow: 0 0 10px rgba(94,229,154,0.6);
-    background: linear-gradient(135deg, rgba(46,204,113,0.18), rgba(46,204,113,0.05));
+
+  /* Setup: hint shown when launch is disabled */
+  .launch-hint {
+    text-align: center; font-size: 11px; color: var(--muted);
+    margin-top: 10px; min-height: 14px; transition: opacity 0.2s ease;
+  }
+
+  /* Result: winner flourish */
+  #result-screen .winner-sub {
+    font-size: 13px; color: var(--muted); letter-spacing: 2px;
+    text-transform: uppercase; margin-bottom: 4px;
+  }
+  #result-screen .winner-power {
+    font-size: 14px; color: var(--accent-2); margin: 12px 0 4px;
+    letter-spacing: 1px;
   }
 
   /* Team tabs */
@@ -1484,7 +1538,7 @@
   <p class="subtitle">Constituez votre équipe — Le dernier dresseur debout gagne</p>
 
   <div class="config-bar">
-    <label class="pixel" style="font-size:11px;">JOUEURS :</label>
+    <label class="pixel config-label">JOUEURS :</label>
     <select id="player-count">
       <option value="2">2</option>
       <option value="3" selected>3</option>
@@ -1499,6 +1553,7 @@
 
   <div class="launch-bar">
     <button id="launch-btn" class="primary" disabled>⚔ LANCER LE COMBAT ⚔</button>
+    <div class="launch-hint" id="launch-hint"></div>
   </div>
 </section>
 
@@ -1516,7 +1571,7 @@
 <section id="battle-screen" class="hidden">
   <div class="battle-header">
     <h1>BATTLE ROYALE</h1>
-    <div style="display:flex;align-items:center;gap:8px;">
+    <div class="header-tools">
       <button class="type-wheel-btn" onclick="showTypeWheel()">🎯 TYPES</button>
       <div class="weather-banner" id="weather-banner"><span class="weather-icon">☀️</span><span id="weather-text">Soleil</span></div>
       <div class="turn-indicator" id="turn-indicator">TOUR 1</div>
@@ -1545,7 +1600,9 @@
 <!-- RESULT SCREEN -->
 <section id="result-screen" class="hidden">
   <h1>🏆 VICTOIRE 🏆</h1>
+  <div class="winner-sub" id="winner-sub">Dernier dresseur debout</div>
   <div class="winner-name" id="winner-name"></div>
+  <div class="winner-power" id="winner-power"></div>
   <div class="winner-team" id="winner-team"></div>
   <button class="primary" onclick="location.reload()">REJOUER</button>
 </section>
@@ -1608,9 +1665,16 @@ const gameState = {
 const API = 'https://pokeapi.co/api/v2/';
 let moveFetchQueue = Promise.resolve();
 
-// Gen 1-7 national dex (#1 Bulbizarre → #809 Meltanos/Melmetal)
+// Gen 1-7 national dex (#1 Bulbizarre → #809 Melmetal)
 const POKEDEX_LIMIT = 809;
 const POKEDEX_SRC = 'https://raw.githubusercontent.com/fanzeyi/pokemon.json/master/pokedex.json';
+
+// The source JSON has corrupted French names for these ids (the whole Gen-7 tail
+// is shifted off-by-one, plus a few casing bugs). Verified against PokéAPI's
+// canonical French names. Without this patch, e.g. "Meltan" loads Zeraora's
+// sprite/stats because id #807's french field is wrong in the source data.
+const FR_NAME_FIX = { 439: "Mime Jr.", 670: "Floette", 702: "Dedenne", 772: "Type:0", 773: "Silvallié", 774: "Météno", 775: "Dodoala", 776: "Boumata", 777: "Togedemaru", 778: "Mimiqui", 779: "Denticrisse", 780: "Draïeul", 781: "Sinistrail", 782: "Bébécaille", 783: "Écaïd", 784: "Ékaïser", 785: "Tokorico", 786: "Tokopiyon", 787: "Tokotoro", 788: "Tokopisco", 789: "Cosmog", 790: "Cosmovum", 791: "Solgaleo", 792: "Lunala", 793: "Zéroïd", 794: "Mouscoto", 795: "Cancrelove", 796: "Câblifère", 797: "Bamboiselle", 798: "Katagami", 799: "Engloutyran", 800: "Necrozma", 801: "Magearna", 802: "Marshadow", 803: "Vémini", 804: "Mandrillon", 805: "Ama-Ama", 806: "Pierroteknik", 807: "Zeraora", 808: "Meltan", 809: "Melmetal" };
+
 let POKEDEX = [];           // [{ id, fr, en, enSlug }]
 let POKEDEX_NAMES_FR = [];  // ['Bulbizarre', 'Herbizarre', ...]
 let FR_TO_ENSLUG = {};      // {'bulbizarre': 'bulbasaur', ...} (keys normalized)
@@ -1638,7 +1702,7 @@ async function loadPokedex() {
       .filter(p => p.id <= POKEDEX_LIMIT)
       .map(p => ({
         id: p.id,
-        fr: p.name.french,
+        fr: FR_NAME_FIX[p.id] || p.name.french,
         en: p.name.english,
         enSlug: enToSlug(p.name.english)
       }));
@@ -2049,7 +2113,7 @@ function renderSetup() {
         <span class="ai-label">🤖 Joueur IA (équipe aléatoire automatique)</span>
       </label>
       <div class="team-list"></div>
-      <div style="font-size:10px;color:var(--muted);margin-top:6px;">Équipe : <span class="team-count">0</span>/7</div>
+      <div class="team-count-line">Équipe : <span class="team-count">0</span>/7</div>
     `;
     grid.appendChild(card);
 
@@ -2156,18 +2220,45 @@ function renderSetup() {
 
 const IV_LABELS = { hp: 'PV', attack: 'ATQ', defense: 'DEF', spAtk: 'ATS', spDef: 'DES', speed: 'VIT' };
 
-// Show perfect-IV badges + total IV score always
-function ivGridHTML(ivs) {
+// Compact one-chip IV readout for the battle mini-panel (declutters the full grid).
+// Details (perfect IVs / total) surface on hover via the title tooltip.
+function ivMiniHTML(ivs) {
   const order = ['hp', 'attack', 'defense', 'spAtk', 'spDef', 'speed'];
-  const perfect = order.filter(k => ivs[k] === 31);
   const total = order.reduce((s, k) => s + ivs[k], 0);
-  let totalCls = 'iv-total';
-  if (total >= 180) totalCls += ' perfect';
-  else if (total >= 165) totalCls += ' high';
-  const badges = perfect.length
-    ? `<div class="iv-badges">${perfect.map(k => `<span class="iv-badge">★ ${IV_LABELS[k]}</span>`).join('')}</div>`
+  const perfect = order.filter(k => ivs[k] === 31).map(k => IV_LABELS[k]);
+  let cls = 'iv-mini';
+  if (total >= 180) cls += ' perfect';
+  else if (total >= 165) cls += ' high';
+  const tip = perfect.length
+    ? `IV ${total}/186 · parfaits : ${perfect.join(', ')}`
+    : `IV ${total}/186`;
+  return `<div class="${cls}" title="${tip}">IV ${total}</div>`;
+}
+
+// IV chip(s) for the setup team-slot card: a color-coded total + a perfect-IV
+// count badge (names listed on hover). Consistent pill language with the rest.
+function ivChipHTML(ivs) {
+  const order = ['hp', 'attack', 'defense', 'spAtk', 'spDef', 'speed'];
+  const total = order.reduce((s, k) => s + ivs[k], 0);
+  const perfect = order.filter(k => ivs[k] === 31).map(k => IV_LABELS[k]);
+  let cls = 'slot-chip iv';
+  if (total >= 180) cls += ' perfect';
+  else if (total >= 165) cls += ' high';
+  const star = perfect.length
+    ? `<span class="slot-chip star" title="IV parfaits : ${perfect.join(', ')}">★ ${perfect.length}</span>`
     : '';
-  return `${badges}<div class="${totalCls}">IV ${total}/186</div>`;
+  return `<span class="${cls}" title="Score d'IV total">IV ${total}/186</span>${star}`;
+}
+
+// Detailed labeled IV grid for the team-preview modal (per-stat, 31s highlighted).
+function ivGridDetailHTML(ivs) {
+  const order = ['hp', 'attack', 'defense', 'spAtk', 'spDef', 'speed'];
+  const cells = order.map(k => {
+    const v = ivs[k];
+    const cls = v === 31 ? 'iv-cell max' : (v >= 28 ? 'iv-cell high' : 'iv-cell');
+    return `<span class="${cls}"><i>${IV_LABELS[k]}</i><b>${v}</b></span>`;
+  }).join('');
+  return `<div class="pm-ivgrid">${cells}</div>`;
 }
 
 function renderTeam(card, player) {
@@ -2175,7 +2266,6 @@ function renderTeam(card, player) {
   const counter = card.querySelector('.team-count');
   counter.textContent = player.team.length;
   list.innerHTML = '';
-  list.style.gap = '10px';
 
   player.team.forEach((mon, i) => {
     const isFusionSlot = (i === 6); // 7th slot = fusion-only
@@ -2186,28 +2276,30 @@ function renderTeam(card, player) {
         + (mon.isShiny ? ' shiny' : '')
         + (isFusionSlot ? ' fusion-only' : '')
     });
-    slot.style.width = '120px';
     const shinyMark = mon.isShiny ? '<span class="shiny-mark" title="Shiny !">✨</span>' : '';
-    const starterTag = isStarterSlot && !isFusionSlot ? '<div style="font-size:8px;color:#f5a623;margin-top:2px;font-family:\'Press Start 2P\',monospace;">🏁 DÉPART</div>' : '';
-    const fusionTag = isFusionSlot ? '<div class="fusion-only-tag">FUSION SLOT</div>' : '';
-    const itemTag = mon.heldItem ? `<div style="font-size:8px;color:#c4a8ff;margin-top:2px;font-family:'Press Start 2P',monospace;">🎒 ${mon.heldItem.name}</div>` : '';
+    const flags = [
+      (isStarterSlot && !isFusionSlot) ? '<span class="slot-flag start" title="Pokémon de départ">🏁 DÉPART</span>' : '',
+      isFusionSlot ? '<span class="slot-flag fusion" title="Emplacement réservé aux fusions">🔀 FUSION</span>' : ''
+    ].filter(Boolean).join('');
+    const itemChip = mon.heldItem
+      ? `<span class="slot-chip item" title="Objet tenu : ${mon.heldItem.name}">🎒 ${mon.heldItem.name}</span>`
+      : '';
     slot.innerHTML = `
-      <img src="${mon.spriteStatic || mon.sprite}" alt="${mon.name}" style="width:88px;height:88px;" />
-      <div class="pname">${shinyMark}${mon.name}</div>
-      ${ivGridHTML(mon.ivs)}
-      ${itemTag}
-      ${starterTag}
-      ${fusionTag}
-      <div class="reorder-row">
+      <button class="remove-btn" title="Retirer">×</button>
+      <div class="slot-portrait"><img src="${mon.spriteStatic || mon.sprite}" alt="${mon.name}" /></div>
+      <div class="slot-name">${shinyMark}${mon.name}</div>
+      <div class="slot-chips">
+        ${ivChipHTML(mon.ivs)}
+        ${itemChip}
+      </div>
+      ${flags ? `<div class="slot-flags">${flags}</div>` : ''}
+      <div class="slot-toolbar">
         <button class="reorder-btn left" title="Reculer" ${i === 0 ? 'disabled' : ''}>◀</button>
+        <button class="star-btn" title="Définir comme départ" ${isStarterSlot ? 'disabled' : ''}>★</button>
+        <button class="roll-mon" title="Re-roll Pokémon (${player.monRerollsLeft || 0} restant${(player.monRerollsLeft||0) > 1 ? 's' : ''})" ${(player.monRerollsLeft || 0) <= 0 ? 'disabled' : ''}>🎲</button>
+        <button class="roll-item" title="Re-roll objet (${player.itemRerollsLeft || 0} restant${(player.itemRerollsLeft||0) > 1 ? 's' : ''})" ${(player.itemRerollsLeft || 0) <= 0 ? 'disabled' : ''}>🎒</button>
         <button class="reorder-btn right" title="Avancer" ${i === player.team.length - 1 ? 'disabled' : ''}>▶</button>
       </div>
-      <div class="slot-actions">
-        <button class="star-btn" title="Mettre en départ" ${isStarterSlot ? 'disabled' : ''}>★</button>
-        <button class="roll-mon" title="Re-roll Pokémon (${player.monRerollsLeft || 0} restant)" ${(player.monRerollsLeft || 0) <= 0 ? 'disabled' : ''}>🎲</button>
-        <button class="roll-item" title="Re-roll objet (${player.itemRerollsLeft || 0} restant)" ${(player.itemRerollsLeft || 0) <= 0 ? 'disabled' : ''}>🎒</button>
-      </div>
-      <button class="remove-btn" title="Retirer">×</button>
     `;
     slot.querySelector('.remove-btn').addEventListener('click', () => {
       player.team.splice(i, 1);
@@ -2311,6 +2403,17 @@ function updateLaunchBtn() {
   const ok = gameState.players.length >= 2 &&
              gameState.players.every(p => p.team.length >= 1);
   $('launch-btn').disabled = !ok;
+  const hint = $('launch-hint');
+  if (hint) {
+    if (ok) {
+      hint.textContent = '';
+    } else {
+      const empty = gameState.players.filter(p => p.team.length < 1);
+      hint.textContent = empty.length
+        ? `En attente d'au moins 1 Pokémon pour : ${empty.map(p => p.name).join(', ')}`
+        : 'Il faut au moins 2 dresseurs pour lancer le combat.';
+    }
+  }
 }
 
 $('apply-count').addEventListener('click', () => {
@@ -2359,7 +2462,7 @@ function renderDraft() {
 
   // Draft complete: all players picked OR no powers left
   if (gameState.draftPointer >= gameState.draftOrder.length || remaining.length === 0) {
-    cur.innerHTML = '<span style="color:#7ad3a3;">✓ Pioche terminée</span>';
+    cur.innerHTML = '<span class="draft-done-note">✓ Pioche terminée</span>';
     $('draft-grid').innerHTML = '';
     const sum = $('draft-summary');
     sum.innerHTML = '';
@@ -3108,7 +3211,29 @@ function applyTeamDeathBuff(player) {
 }
 
 // ---------- FUSION ----------
-const ALEX_FUSION_BASE = 'https://images.alexonsager.net/pokemon/fused';
+// Infinite Fusion autogen sprites, served via jsDelivr (CDN cached + CORS-enabled).
+// URL scheme: .../Battlers/{headId}/{headId}.{bodyId}.png  (head = A, body = B).
+// IF dex IDs 1–251 are IDENTICAL to the National Dex (Gen 1 + Gen 2), so our
+// national-dex ids map 1:1 in that range. Beyond 251 IF uses its own numbering,
+// so we only pull IF sprites when BOTH parents are ≤ 251 and fall back otherwise.
+const IF_FUSION_BASE = 'https://cdn.jsdelivr.net/gh/Z1R343L/autogen-fusion-sprites/Battlers';
+const IF_DEX_MAX = 251;
+function infiniteFusionURL(headId, bodyId) {
+  return `${IF_FUSION_BASE}/${headId}/${headId}.${bodyId}.png`;
+}
+// Preload an image URL; resolves true only if it actually decodes (guards against
+// rare missing sprites / network errors so we can gracefully fall back).
+function loadImageOK(src, timeout = 7000) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    let settled = false;
+    const finish = (ok) => { if (!settled) { settled = true; resolve(ok); } };
+    img.onload = () => finish(img.naturalWidth > 1);
+    img.onerror = () => finish(false);
+    img.src = src;
+    setTimeout(() => finish(false), timeout);
+  });
+}
 function canFusePair(a, b) {
   return a && b && a !== b && !a.isFusion && !b.isFusion;
 }
@@ -3174,16 +3299,20 @@ async function generateCanvasFusion(srcA, srcB) {
 }
 
 async function buildFusion(a, b) {
-  // Generate a unique sprite for every fusion:
-  // - Gen 1 × Gen 1 → alexonsager designed fusion (preferred)
-  // - Otherwise → canvas composite (head A + body B) → unique
+  // Generate a unique sprite for every fusion, best source first:
+  // - Both parents Gen 1 or Gen 2 (id ≤ 251) → Infinite Fusion designed sprite
+  //   (head = A, body = B), verified to load.
+  // - Otherwise / on miss → canvas composite (head A + body B) → unique
   // - Last-resort fallback → parent A sprite
-  const useAlex = a.id <= 151 && b.id <= 151;
   let sprite, spriteStatic;
-  if (useAlex) {
-    sprite = `${ALEX_FUSION_BASE}/${a.id}/${a.id}.${b.id}.png`;
-    spriteStatic = sprite;
-  } else {
+  if (a.id <= IF_DEX_MAX && b.id <= IF_DEX_MAX) {
+    const ifUrl = infiniteFusionURL(a.id, b.id);
+    if (await loadImageOK(ifUrl)) {
+      sprite = ifUrl;
+      spriteStatic = ifUrl;
+    }
+  }
+  if (!sprite) {
     const composite = await generateCanvasFusion(
       a.spriteStatic || a.sprite,
       b.spriteStatic || b.sprite
@@ -3250,7 +3379,7 @@ function showTypeWheel() {
   const overlay = document.createElement('div');
   overlay.className = 'modal-overlay';
   // Build matrix HTML
-  let cells = '<div class="tc-corner tc-head" style="font-size:7px;">ATQ ↓<br>DEF →</div>';
+  let cells = '<div class="tc-corner tc-head">ATQ ↓<br>DEF →</div>';
   for (const def of ALL_TYPES) {
     cells += `<div class="tc-head t-${def}">${def.slice(0,4)}</div>`;
   }
@@ -3273,10 +3402,10 @@ function showTypeWheel() {
       <div class="type-chart-axis">Lignes = type d'attaque · Colonnes = type du défenseur</div>
       <div class="type-chart">${cells}</div>
       <div class="type-chart-legend">
-        <span><i style="background:#1f6f2e"></i> ×4 / ×2 super</span>
-        <span><i style="background:rgba(255,255,255,0.1)"></i> ×1 normal</span>
-        <span><i style="background:#6a4225"></i> ×½ / ×¼ peu</span>
-        <span><i style="background:#000"></i> ×0 aucun</span>
+        <span><i class="super"></i> ×4 / ×2 super</span>
+        <span><i class="normal"></i> ×1 normal</span>
+        <span><i class="weak"></i> ×½ / ×¼ peu</span>
+        <span><i class="none"></i> ×0 aucun</span>
       </div>
       <button class="primary close-modal">FERMER</button>
     </div>`;
@@ -3297,20 +3426,21 @@ function showTeamsPreview() {
       const isFusionOnly = (p.fusionReserve || []).includes(m);
       const shiny = m.isShiny ? '<span class="shiny-mark">✨</span>' : '';
       const types = m.types.map(t => `<span class="type-pill t-${t}">${t.slice(0,3)}</span>`).join('');
-      const fusionTag = isFusionOnly ? '<div class="fusion-only-tag" style="margin-top:3px;">FUSION</div>' : '';
-      const ivStr = `${m.ivs.hp}/${m.ivs.attack}/${m.ivs.defense}/${m.ivs.spAtk}/${m.ivs.spDef}/${m.ivs.speed}`;
-      const natureTxt = m.nature ? `${m.nature}` : '';
-      const itemTxt = m.heldItem ? `🎒 ${m.heldItem.name}` : '';
-      const megaCap = (m.megaForms && m.megaForms.length > 0) ? '<span style="color:#ff5fb0;text-shadow:0 0 6px #ff5fb0;" title="Méga-Évolution possible">Ⓜ</span> ' : '';
+      const fusionFlag = isFusionOnly ? '<span class="slot-flag fusion">🔀 FUSION</span>' : '';
+      const ivTotal = ['hp','attack','defense','spAtk','spDef','speed'].reduce((s,k)=>s+m.ivs[k],0);
+      let ivCls = 'slot-chip iv';
+      if (ivTotal >= 180) ivCls += ' perfect'; else if (ivTotal >= 165) ivCls += ' high';
+      const natureChip = m.nature ? `<span class="slot-chip nature" title="Nature">${m.nature}</span>` : '';
+      const itemChip = m.heldItem ? `<span class="slot-chip item" title="Objet tenu : ${m.heldItem.name}">🎒 ${m.heldItem.name}</span>` : '';
+      const megaCap = (m.megaForms && m.megaForms.length > 0) ? '<span class="mega-cap" title="Méga-Évolution possible">Ⓜ</span> ' : '';
       monsHtml += `
-        <div class="preview-mon">
+        <div class="preview-mon${isFusionOnly ? ' fusion' : ''}">
           <img src="${m.spriteStatic || m.sprite}" alt="${m.name}" />
           <div class="pm-name">${megaCap}${shiny}${m.name}</div>
           <div class="pm-types">${types}</div>
-          ${natureTxt ? `<div class="pm-nature">${natureTxt}</div>` : ''}
-          <div class="pm-ivs" title="HP/ATQ/DEF/ATS/DES/VIT">${ivStr}</div>
-          ${itemTxt ? `<div class="pm-item">${itemTxt}</div>` : ''}
-          ${fusionTag}
+          <div class="pm-chips"><span class="${ivCls}" title="Score d'IV total">IV ${ivTotal}/186</span>${natureChip}</div>
+          ${ivGridDetailHTML(m.ivs)}
+          ${(itemChip || fusionFlag) ? `<div class="pm-chips">${itemChip}${fusionFlag}</div>` : ''}
         </div>`;
     }
     const powerTxt = p.power ? `${POWERS[p.power].icon} ${POWERS[p.power].name}` : '';
@@ -3892,12 +4022,13 @@ function renderTeamsPanel() {
   const buffStacks = p.deathBuff || 0;
   const buffPct = buffStacks > 0 ? Math.round((Math.pow(1.05, buffStacks) - 1) * 100) : 0;
   const buffBadge = buffStacks > 0
-    ? `<span style="background:linear-gradient(135deg,#e94560,#f5a623);color:#fff;padding:2px 8px;border-radius:8px;margin-left:6px;text-shadow:0 0 6px rgba(0,0,0,0.4);" title="${buffStacks} K.O. dans l'équipe">⚡+${buffPct}%</span>`
+    ? `<span class="buff-badge" title="${buffStacks} K.O. dans l'équipe — bonus de stats">⚡+${buffPct}%</span>`
     : '';
   block.innerHTML = `
     <div class="team-name">${p.name}${p.eliminated ? ' (ÉLIMINÉ)' : ''} — ${aliveCount}/${p.team.length}${buffBadge}</div>
-    <div style="font-size:9px;color:var(--muted);margin-bottom:6px;font-family:'Press Start 2P',monospace;">
-      🧪 ${items.maxPotion} · 💎 ${items.maxRevive}
+    <div class="team-inventory">
+      <span class="inv-chip${items.maxPotion ? '' : ' empty'}" title="Potions Max">🧪 ${items.maxPotion}</span>
+      <span class="inv-chip${items.maxRevive ? '' : ' empty'}" title="Rappels Max">💎 ${items.maxRevive}</span>
     </div>
   `;
   const mini = el('div', { className: 'team-mini' });
@@ -3910,14 +4041,13 @@ function renderTeamsPanel() {
         + (m.isShiny ? ' shiny' : '')
         + (m.isFusion ? ' fusion' : '')
     });
-    div.style.width = '96px';
     const shinyMark = m.isShiny ? '<span class="shiny-mark">✨</span>' : '';
     const fusionMark = m.isFusion ? '<span class="fusion-mark">🔀</span>' : '';
     div.innerHTML = `
       <img src="${m.spriteStatic || m.sprite}" alt="${m.name}" />
-      <div class="mini-hp"><div class="mini-hp-fill" style="width:${r*100}%;background:${hpColor(r)};"></div></div>
+      <div class="mini-hp" title="PV ${m.currentHP}/${m.maxHP}"><div class="mini-hp-fill" style="width:${r*100}%;background:${hpColor(r)};"></div></div>
       <div class="mini-name">${shinyMark}${fusionMark}${m.name}</div>
-      ${ivGridHTML(m.ivs)}
+      ${ivMiniHTML(m.ivs)}
     `;
     mini.appendChild(div);
   });
@@ -3942,17 +4072,27 @@ function showResult() {
   $('battle-screen').classList.add('hidden');
   $('result-screen').classList.remove('hidden');
   const w = gameState.winner;
+  const sub = $('winner-sub');
+  const power = $('winner-power');
   if (!w) {
+    if (sub) sub.textContent = '';
     $('winner-name').textContent = 'Aucun survivant — match nul !';
+    if (power) power.textContent = '';
+    $('winner-team').innerHTML = '';
     return;
   }
+  if (sub) sub.textContent = 'Dernier dresseur debout';
   $('winner-name').textContent = w.name + ' remporte la victoire !';
+  if (power) {
+    power.textContent = w.power ? `${POWERS[w.power].icon} ${POWERS[w.power].name}` : '';
+  }
   const team = $('winner-team');
   team.innerHTML = '';
   w.team.forEach(m => {
     const img = document.createElement('img');
     img.src = m.sprite || m.spriteStatic;
     img.alt = m.name;
+    img.title = m.name;
     team.appendChild(img);
   });
 }
