@@ -770,7 +770,7 @@
   }
   .player-card.ai-mode .add-row,
   .player-card.ai-mode .slot-toolbar,
-  .player-card.ai-mode .reroll-counter,
+  .player-card.ai-mode .reroll-bar,
   .player-card.ai-mode .remove-btn { display: none !important; }
   .ai-badge {
     display: inline-block; font-family: 'Orbitron', sans-serif;
@@ -839,15 +839,37 @@
   @keyframes aiPulse { 0%,100% { opacity: 0.6; } 50% { opacity: 1; } }
 
   /* Slot action mini-buttons */
-  .reroll-counter {
-    display: flex; justify-content: space-around;
-    font-family: 'Press Start 2P', monospace; font-size: 9px;
-    margin: 8px 0; padding: 6px;
-    background: rgba(15, 22, 38, 0.6);
-    border-radius: 6px; border: 1px solid rgba(255,255,255,0.06);
+  /* Generic two-step reroll bar */
+  .reroll-bar { margin: 10px 0; }
+  .reroll-buttons { display: flex; gap: 8px; }
+  .reroll-generic {
+    flex: 1; font-family: 'Press Start 2P', monospace; font-size: 8px;
+    padding: 8px 6px; border-radius: 8px; cursor: pointer;
+    background: rgba(15,22,38,0.7); border: 1px solid rgba(255,255,255,0.12);
+    color: #cdd3e0; transition: all 0.15s ease;
   }
-  .reroll-counter span { color: var(--accent-2); }
-  .reroll-counter span.zero { color: var(--bad); }
+  .reroll-generic.mon:hover:not(:disabled)  { border-color: #4ecdc4; color: #4ecdc4; }
+  .reroll-generic.item:hover:not(:disabled) { border-color: #c4a8ff; color: #c4a8ff; }
+  .reroll-generic:disabled { opacity: 0.35; cursor: not-allowed; }
+  .reroll-generic.armed {
+    background: linear-gradient(135deg, rgba(245,166,35,0.3), rgba(233,69,96,0.2));
+    border-color: var(--accent-2); color: #fff;
+    box-shadow: 0 0 14px rgba(245,166,35,0.4);
+  }
+  .reroll-hint {
+    margin-top: 6px; font-size: 10px; color: var(--accent-2);
+    text-align: center; animation: rerollPulse 1.2s ease-in-out infinite;
+  }
+  @keyframes rerollPulse { 0%,100% { opacity: 0.6; } 50% { opacity: 1; } }
+  /* Cards become pickable targets while a reroll is armed */
+  .team-list.arming { outline: 2px dashed rgba(245,166,35,0.4); outline-offset: 4px; border-radius: 8px; }
+  .team-slot.selectable { cursor: pointer; }
+  .team-slot.selectable:hover {
+    border-color: var(--accent-2);
+    box-shadow: 0 0 0 2px var(--accent-2), 0 6px 18px rgba(245,166,35,0.3);
+    transform: translateY(-3px);
+  }
+  .team-slot.selectable .slot-toolbar { opacity: 0.4; }
 
   /* Mega-capable badge in arena */
   .mega-capable-badge {
@@ -2266,6 +2288,7 @@ function renderTeam(card, player) {
   const counter = card.querySelector('.team-count');
   counter.textContent = player.team.length;
   list.innerHTML = '';
+  list.classList.toggle('arming', !!player._rerollArm);
 
   player.team.forEach((mon, i) => {
     const isFusionSlot = (i === 6); // 7th slot = fusion-only
@@ -2275,6 +2298,7 @@ function renderTeam(card, player) {
         + (mon.isStarter ? ' starter' : '')
         + (mon.isShiny ? ' shiny' : '')
         + (isFusionSlot ? ' fusion-only' : '')
+        + (player._rerollArm ? ' selectable' : '')
     });
     const shinyMark = mon.isShiny ? '<span class="shiny-mark" title="Shiny !">✨</span>' : '';
     const flags = [
@@ -2296,11 +2320,20 @@ function renderTeam(card, player) {
       <div class="slot-toolbar">
         <button class="reorder-btn left" title="Reculer" ${i === 0 ? 'disabled' : ''}>◀</button>
         <button class="star-btn" title="Définir comme départ" ${isStarterSlot ? 'disabled' : ''}>★</button>
-        <button class="roll-mon" title="Re-roll Pokémon (${player.monRerollsLeft || 0} restant${(player.monRerollsLeft||0) > 1 ? 's' : ''})" ${(player.monRerollsLeft || 0) <= 0 ? 'disabled' : ''}>🎲</button>
-        <button class="roll-item" title="Re-roll objet (${player.itemRerollsLeft || 0} restant${(player.itemRerollsLeft||0) > 1 ? 's' : ''})" ${(player.itemRerollsLeft || 0) <= 0 ? 'disabled' : ''}>🎒</button>
         <button class="reorder-btn right" title="Avancer" ${i === player.team.length - 1 ? 'disabled' : ''}>▶</button>
       </div>
     `;
+    // Two-step reroll: when a generic reroll button is armed, the whole card
+    // becomes a target — click it to reroll its Pokémon / item.
+    if (player._rerollArm) {
+      slot.addEventListener('click', (e) => {
+        if (e.target.closest('.slot-toolbar') || e.target.closest('.remove-btn')) return;
+        const mode = player._rerollArm;
+        player._rerollArm = null;
+        if (mode === 'mon') rerollMon(card, player, i);
+        else if (mode === 'item') rerollItem(card, player, i);
+      });
+    }
     slot.querySelector('.remove-btn').addEventListener('click', () => {
       player.team.splice(i, 1);
       if (player.team.length > 0 && !player.team.some(m => m.isStarter)) {
@@ -2328,20 +2361,35 @@ function renderTeam(card, player) {
       applyStarterBoost(player.team[0]);
       renderTeam(card, player);
     });
-    slot.querySelector('.roll-mon').addEventListener('click', () => rerollMon(card, player, i));
-    slot.querySelector('.roll-item').addEventListener('click', () => rerollItem(card, player, i));
     list.appendChild(slot);
   });
 
-  // Reroll counter strip
-  const oldCounter = card.querySelector('.reroll-counter');
-  if (oldCounter) oldCounter.remove();
-  const counterBar = el('div', { className: 'reroll-counter' });
-  counterBar.innerHTML = `
-    <span class="${(player.monRerollsLeft || 0) === 0 ? 'zero' : ''}">🎲 Pokémon : ${player.monRerollsLeft || 0}/3</span>
-    <span class="${(player.itemRerollsLeft || 0) === 0 ? 'zero' : ''}">🎒 Objets : ${player.itemRerollsLeft || 0}/3</span>
+  // Generic two-step reroll bar (replaces per-card dice buttons)
+  const oldBar = card.querySelector('.reroll-bar');
+  if (oldBar) oldBar.remove();
+  const monLeft = player.monRerollsLeft || 0;
+  const itemLeft = player.itemRerollsLeft || 0;
+  const arm = player._rerollArm;
+  const bar = el('div', { className: 'reroll-bar' + (arm ? ' arming' : '') });
+  const hint = arm
+    ? `<div class="reroll-hint">👉 Choisis le Pokémon ${arm === 'mon' ? 'à relancer' : 'dont relancer l\'objet'} (ou Échap pour annuler)</div>`
+    : '';
+  bar.innerHTML = `
+    <div class="reroll-buttons">
+      <button class="reroll-generic mon${arm === 'mon' ? ' armed' : ''}" ${monLeft <= 0 || player.team.length === 0 ? 'disabled' : ''}>🎲 Reroll Pokémon · ${monLeft}/3</button>
+      <button class="reroll-generic item${arm === 'item' ? ' armed' : ''}" ${itemLeft <= 0 || player.team.length === 0 ? 'disabled' : ''}>🎒 Reroll Objet · ${itemLeft}/3</button>
+    </div>
+    ${hint}
   `;
-  list.parentElement.insertBefore(counterBar, list);
+  bar.querySelector('.reroll-generic.mon').addEventListener('click', () => {
+    player._rerollArm = (player._rerollArm === 'mon') ? null : 'mon';
+    renderTeam(card, player);
+  });
+  bar.querySelector('.reroll-generic.item').addEventListener('click', () => {
+    player._rerollArm = (player._rerollArm === 'item') ? null : 'item';
+    renderTeam(card, player);
+  });
+  list.parentElement.insertBefore(bar, list);
 }
 
 async function generateAITeam(card, player, count) {
@@ -2422,6 +2470,15 @@ $('apply-count').addEventListener('click', () => {
 });
 
 $('launch-btn').addEventListener('click', () => enterDraftPhase());
+
+// Escape cancels any armed reroll selection across all player cards.
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Escape' || gameState.phase !== 'setup') return;
+  const armed = gameState.players.some(p => p._rerollArm);
+  if (!armed) return;
+  gameState.players.forEach(p => { p._rerollArm = null; });
+  renderSetup();
+});
 
 // ---------- DRAFT PHASE ----------
 function enterDraftPhase() {
