@@ -71,6 +71,10 @@
   }
   button:active:not(:disabled) { transform: translateY(-1px); }
   button:disabled { opacity: 0.35; cursor: not-allowed; border-color: var(--border); filter: grayscale(0.5); }
+  /* Inline SVG icons inside buttons/labels (replace emoji) */
+  .ico { width: 1.05em; height: 1.05em; vertical-align: -0.16em; margin-right: 0.4em; flex-shrink: 0; }
+  .ico:last-child { margin-right: 0; }
+  .ico.ico-only { margin-right: 0; vertical-align: -0.18em; }
   button.primary {
     background: linear-gradient(135deg, #e94560 0%, #f5a623 100%);
     border: none;
@@ -1620,14 +1624,14 @@
       <option value="4">4</option>
       <option value="5">5</option>
     </select>
-    <button id="apply-count">APPLIQUER</button>
-    <button class="type-wheel-btn" onclick="showTypeWheel()">🎯 ROUE TYPES</button>
+    <button id="apply-count"><span data-icon="check"></span>APPLIQUER</button>
+    <button class="type-wheel-btn" onclick="showTypeWheel()"><span data-icon="target"></span>ROUE TYPES</button>
   </div>
 
   <div id="players-grid" class="players-grid"></div>
 
   <div class="launch-bar">
-    <button id="launch-btn" class="primary" disabled>⚔ LANCER LE COMBAT ⚔</button>
+    <button id="launch-btn" class="primary" disabled><span data-icon="sword"></span>LANCER LE COMBAT</button>
     <div class="launch-hint" id="launch-hint"></div>
   </div>
 </section>
@@ -1648,8 +1652,8 @@
   <p class="subtitle">Vérifiez les équipes, pouvoirs et objets avant le combat.</p>
   <div id="review-content"></div>
   <div class="review-actions">
-    <button id="review-back">← Retour aux pouvoirs</button>
-    <button id="review-start" class="primary">⚔ LANCER LE COMBAT ⚔</button>
+    <button id="review-back"><span data-icon="left"></span>Retour aux pouvoirs</button>
+    <button id="review-start" class="primary"><span data-icon="sword"></span>LANCER LE COMBAT</button>
   </div>
 </section>
 
@@ -1658,7 +1662,7 @@
   <div class="battle-header">
     <h1>BATTLE ROYALE</h1>
     <div class="header-tools">
-      <button class="type-wheel-btn" onclick="showTypeWheel()">🎯 TYPES</button>
+      <button class="type-wheel-btn" onclick="showTypeWheel()"><span data-icon="target"></span>TYPES</button>
       <div class="weather-banner" id="weather-banner"><span class="weather-icon">☀️</span><span id="weather-text">Soleil</span></div>
       <div class="turn-indicator" id="turn-indicator">TOUR 1</div>
     </div>
@@ -1690,7 +1694,7 @@
   <div class="winner-name" id="winner-name"></div>
   <div class="winner-power" id="winner-power"></div>
   <div class="winner-team" id="winner-team"></div>
-  <button class="primary" onclick="location.reload()">REJOUER</button>
+  <button class="primary" onclick="location.reload()"><span data-icon="replay"></span>REJOUER</button>
 </section>
 
 <div id="global-loader" class="global-loader hidden"><span class="spinner"></span> <span id="loader-text">Chargement…</span></div>
@@ -1867,6 +1871,39 @@ function suggestSimilar(query, limit = 5) {
 
 function isValidPokemon(name) {
   return !!FR_TO_ENSLUG[normalize(name)];
+}
+
+// ---------- ICONS (inline SVG, currentColor) ----------
+// Clean line icons that replace emoji in buttons across the app.
+const ICONS = {
+  sword:  '<path d="M14.5 1.5 8 8M14.5 1.5l-1 4-4.5 4.5-1-1L12.5 2.5l2-1ZM6.5 9.5l-4 4M2 12l2 2M4.5 9.5 2 12M11 11l3 3.5"/>',
+  swap:   '<path d="M3 5h9M3 5l2.5-2.5M3 5l2.5 2.5M13 11H4m9 0-2.5-2.5M13 11l-2.5 2.5"/>',
+  bag:    '<path d="M4 5h8l.8 8.5a1 1 0 0 1-1 1.1H4.2a1 1 0 0 1-1-1.1L4 5Zm1.5 0V3.5a2.5 2.5 0 0 1 5 0V5"/>',
+  fusion: '<path d="M5.5 8a2.5 2.5 0 1 1 5 0 2.5 2.5 0 1 1-5 0ZM3 8a5 5 0 0 0 10 0A5 5 0 0 0 3 8Z"/>',
+  eye:    '<path d="M1.5 8S4 3.5 8 3.5 14.5 8 14.5 8 12 12.5 8 12.5 1.5 8 1.5 8Z"/><circle cx="8" cy="8" r="2"/>',
+  target: '<circle cx="8" cy="8" r="6.2"/><circle cx="8" cy="8" r="3"/><circle cx="8" cy="8" r="0.6" fill="currentColor"/>',
+  dice:   '<rect x="2.5" y="2.5" width="11" height="11" rx="2.5"/><circle cx="5.5" cy="5.5" r="0.9" fill="currentColor"/><circle cx="10.5" cy="10.5" r="0.9" fill="currentColor"/><circle cx="8" cy="8" r="0.9" fill="currentColor"/>',
+  folder: '<path d="M1.8 4.5h4l1.2 1.5h5.2a1 1 0 0 1 1 1v5a1 1 0 0 1-1 1H1.8a1 1 0 0 1-1-1v-6.5a1 1 0 0 1 1-1Z"/>',
+  save:   '<path d="M3 2.5h7.5L13.5 5.5V13a1 1 0 0 1-1 1h-9a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1Z"/><path d="M5 2.5v3.5h5V2.5M5.5 14v-4h5v4"/>',
+  plus:   '<path d="M8 3v10M3 8h10"/>',
+  check:  '<path d="M3 8.5 6.5 12 13 4.5"/>',
+  x:      '<path d="M4 4l8 8M12 4l-8 8"/>',
+  star:   '<path d="M8 1.8l1.8 3.9 4.2.5-3.1 2.9.9 4.2L8 11.9 4.3 13.7l.9-4.2L2 6.2l4.2-.5L8 1.8Z"/>',
+  left:   '<path d="M10 3 5 8l5 5"/>',
+  right:  '<path d="M6 3l5 5-5 5"/>',
+  potion: '<path d="M6.5 1.8h3M7 1.8v3l-2.4 6a1.6 1.6 0 0 0 1.5 2.3h3.8a1.6 1.6 0 0 0 1.5-2.3L9 4.8v-3"/>',
+  revive: '<path d="M8 2.2 9.6 5l3.2.5L10.4 8l.7 3.2L8 9.7 4.9 11.2 5.6 8 3.2 5.5 6.4 5 8 2.2Z"/>',
+  spark:  '<path d="M8 1.5v3M8 11.5v3M1.5 8h3M11.5 8h3M3.5 3.5l2 2M10.5 10.5l2 2M12.5 3.5l-2 2M5.5 10.5l-2 2"/>',
+  trophy: '<path d="M4.5 2.5h7v3a3.5 3.5 0 0 1-7 0v-3ZM4.5 3.5h-2v1a2 2 0 0 0 2 2M11.5 3.5h2v1a2 2 0 0 1-2 2M6.5 9.5l-.5 2.5h4l-.5-2.5M5 13.5h6"/>',
+  bot:    '<rect x="3" y="5" width="10" height="8" rx="2"/><path d="M8 2.5V5M5.8 9h.01M10.2 9h.01M6.5 12h3"/>',
+  replay: '<path d="M13 8a5 5 0 1 1-1.6-3.7M13 2.5V5h-2.5"/>',
+  bolt:   '<path d="M8.5 1.5 3.5 9h3.5l-1 5.5L13 6.5H9.5l-1-5Z"/>',
+  flag:   '<path d="M4 14V2.5M4 3h7l-1.5 2.5L11 8H4"/>',
+};
+function icon(name, cls) {
+  const p = ICONS[name];
+  if (!p) return '';
+  return `<svg class="ico${cls ? ' ' + cls : ''}" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
 }
 
 // ---------- UTILS ----------
@@ -2226,7 +2263,7 @@ function showPresetPicker(player, card) {
       const thumbs = pr.team.slice(0, 7).map(m => `<img src="${m.spriteStatic || m.sprite}" alt="${m.name}" title="${m.name}" />`).join('');
       const sub = kind === 'named' ? presetDateLabel(pr.createdAt) : `${pr.label} · ${presetDateLabel(pr.createdAt)}`;
       return `<div class="preset-item" data-id="${pr.id}">
-        <button class="preset-del" data-del="${pr.id}" title="Supprimer">×</button>
+        <button class="preset-del" data-del="${pr.id}" title="Supprimer">${icon('x', 'ico-only')}</button>
         <div class="preset-item-head">${kind === 'named' ? pr.name : pr.label}</div>
         <div class="preset-sub">${sub}</div>
         <div class="preset-thumbs">${thumbs}</div>
@@ -2241,14 +2278,16 @@ function showPresetPicker(player, card) {
     <div class="preset-grid">${section('named', store.named, 'named')}</div>
     <h3 class="preset-sec">🕘 Parties récentes</h3>
     <div class="preset-grid">${section('auto', store.auto, 'auto')}</div>
-    <button class="primary close-modal">FERMER</button>
+    <button class="primary close-modal">${icon('x')}FERMER</button>
   `;
   overlay.appendChild(cardEl);
   overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
   cardEl.querySelector('.close-modal').addEventListener('click', () => overlay.remove());
   cardEl.addEventListener('click', (e) => {
-    const loadId = e.target.getAttribute('data-load');
-    const delId = e.target.getAttribute('data-del');
+    const loadEl = e.target.closest('[data-load]');
+    const delEl = e.target.closest('[data-del]');
+    const loadId = loadEl && loadEl.getAttribute('data-load');
+    const delId = delEl && delEl.getAttribute('data-del');
     if (loadId) {
       const all = [...store.named, ...store.auto];
       const pr = all.find(x => x.id === loadId);
@@ -2303,9 +2342,9 @@ function renderSetup() {
       <div>
         <label>Starter / Ajouter Pokémon (Gen 1-7, noms FR)</label>
         <div class="add-row">
-          <button class="p-rand-btn rand-btn" title="Pokémon aléatoire">🎲</button>
+          <button class="p-rand-btn rand-btn" title="Pokémon aléatoire">${icon('dice', 'ico-only')}</button>
           <input type="text" class="p-mon-input" list="pokedex-list" placeholder="ex: Bulbizarre" autocomplete="off" />
-          <button class="p-add-btn">AJOUTER</button>
+          <button class="p-add-btn">${icon('plus')}AJOUTER</button>
         </div>
         <div class="inline-error p-error"></div>
         <div class="suggestions p-suggestions"></div>
@@ -2315,8 +2354,8 @@ function renderSetup() {
         <span class="ai-label">🤖 Joueur IA (équipe aléatoire automatique)</span>
       </label>
       <div class="preset-row">
-        <button class="p-load-preset" title="Charger une équipe sauvegardée ou récente">📁 Charger une équipe</button>
-        <button class="p-save-preset" title="Enregistrer l'équipe actuelle comme préréglage">💾 Enregistrer</button>
+        <button class="p-load-preset" title="Charger une équipe sauvegardée ou récente">${icon('folder')}Charger une équipe</button>
+        <button class="p-save-preset" title="Enregistrer l'équipe actuelle comme préréglage">${icon('save')}Enregistrer</button>
       </div>
       <div class="team-list"></div>
       <div class="team-count-line">Équipe : <span class="team-count">0</span>/7</div>
@@ -2504,7 +2543,7 @@ function renderTeam(card, player) {
       ? `<span class="slot-chip item" title="Objet tenu : ${mon.heldItem.name}">🎒 ${mon.heldItem.name}</span>`
       : '';
     slot.innerHTML = `
-      <button class="remove-btn" title="Retirer">×</button>
+      <button class="remove-btn" title="Retirer">${icon('x', 'ico-only')}</button>
       <div class="slot-portrait"><img src="${mon.spriteStatic || mon.sprite}" alt="${mon.name}" /></div>
       <div class="slot-name">${shinyMark}${mon.name}</div>
       <div class="slot-chips">
@@ -2513,9 +2552,9 @@ function renderTeam(card, player) {
       </div>
       ${flags ? `<div class="slot-flags">${flags}</div>` : ''}
       <div class="slot-toolbar">
-        <button class="reorder-btn left" title="Reculer" ${i === 0 ? 'disabled' : ''}>◀</button>
-        <button class="star-btn" title="Définir comme départ" ${isStarterSlot ? 'disabled' : ''}>★</button>
-        <button class="reorder-btn right" title="Avancer" ${i === player.team.length - 1 ? 'disabled' : ''}>▶</button>
+        <button class="reorder-btn left" title="Reculer" ${i === 0 ? 'disabled' : ''}>${icon('left', 'ico-only')}</button>
+        <button class="star-btn" title="Définir comme départ" ${isStarterSlot ? 'disabled' : ''}>${icon('star', 'ico-only')}</button>
+        <button class="reorder-btn right" title="Avancer" ${i === player.team.length - 1 ? 'disabled' : ''}>${icon('right', 'ico-only')}</button>
       </div>
     `;
     // Two-step reroll: when a generic reroll button is armed, the whole card
@@ -2567,12 +2606,12 @@ function renderTeam(card, player) {
   const arm = player._rerollArm;
   const bar = el('div', { className: 'reroll-bar' + (arm ? ' arming' : '') });
   const hint = arm
-    ? `<div class="reroll-hint">👉 Choisis le Pokémon ${arm === 'mon' ? 'à relancer' : 'dont relancer l\'objet'} (ou Échap pour annuler)</div>`
+    ? `<div class="reroll-hint">Choisis le Pokémon ${arm === 'mon' ? 'à relancer' : 'dont relancer l\'objet'} (ou Échap pour annuler)</div>`
     : '';
   bar.innerHTML = `
     <div class="reroll-buttons">
-      <button class="reroll-generic mon${arm === 'mon' ? ' armed' : ''}" ${monLeft <= 0 || player.team.length === 0 ? 'disabled' : ''}>🎲 Reroll Pokémon · ${monLeft}/3</button>
-      <button class="reroll-generic item${arm === 'item' ? ' armed' : ''}" ${itemLeft <= 0 || player.team.length === 0 ? 'disabled' : ''}>🎒 Reroll Objet · ${itemLeft}/3</button>
+      <button class="reroll-generic mon${arm === 'mon' ? ' armed' : ''}" ${monLeft <= 0 || player.team.length === 0 ? 'disabled' : ''}>${icon('dice')}Reroll Pokémon · ${monLeft}/3</button>
+      <button class="reroll-generic item${arm === 'item' ? ' armed' : ''}" ${itemLeft <= 0 || player.team.length === 0 ? 'disabled' : ''}>${icon('bag')}Reroll Objet · ${itemLeft}/3</button>
     </div>
     ${hint}
   `;
@@ -2738,7 +2777,7 @@ function renderDraft() {
     $('draft-grid').innerHTML = '';
     const sum = $('draft-summary');
     sum.innerHTML = '';
-    const editBtn = el('button', { textContent: '← MODIFIER ÉQUIPES' });
+    const editBtn = el('button', { innerHTML: icon('left') + 'MODIFIER ÉQUIPES' });
     editBtn.style.marginRight = '12px';
     editBtn.addEventListener('click', () => {
       // Return to setup w/ team editing. Powers preserved; draftPointer reset.
@@ -2749,7 +2788,7 @@ function renderDraft() {
       $('setup-screen').classList.remove('hidden');
       renderSetup();
     });
-    const btn = el('button', { className: 'primary', textContent: '👁️ REVOIR LES ÉQUIPES →' });
+    const btn = el('button', { className: 'primary', innerHTML: icon('eye') + 'REVOIR LES ÉQUIPES' });
     btn.addEventListener('click', () => enterReviewPhase());
     sum.appendChild(editBtn);
     sum.appendChild(btn);
@@ -3012,32 +3051,32 @@ async function runAITurn(player, mon) {
 function renderActionMenu(player, mon) {
   const row = $('action-row');
   row.innerHTML = '';
-  const attackBtn = el('button', { className: 'primary', textContent: '⚔ ATTAQUER' });
+  const attackBtn = el('button', { className: 'primary', innerHTML: icon('sword') + 'ATTAQUER' });
   attackBtn.addEventListener('click', () => renderMoveMenu(player, mon));
   row.appendChild(attackBtn);
 
   const reserves = alivePokemons(player).filter(m => m !== mon);
-  const switchBtn = el('button', { className: 'warn', textContent: '↻ CHANGER' });
+  const switchBtn = el('button', { className: 'warn', innerHTML: icon('swap') + 'CHANGER' });
   switchBtn.disabled = reserves.length === 0;
   switchBtn.addEventListener('click', () => renderSwitchMenu(player, reserves));
   row.appendChild(switchBtn);
 
   const totalItems = (player.items?.maxPotion || 0) + (player.items?.maxRevive || 0);
-  const itemBtn = el('button', { className: 'item-btn', textContent: '🎒 OBJETS' });
+  const itemBtn = el('button', { className: 'item-btn', innerHTML: icon('bag') + 'OBJETS' });
   itemBtn.disabled = totalItems === 0;
   itemBtn.addEventListener('click', () => renderItemMenu(player, mon));
   row.appendChild(itemBtn);
 
   // MEGA-EVOLUTION button (only if active mon can mega + cooldown ok)
   if (canMega(player, mon)) {
-    const megaBtn = el('button', { className: 'mega-btn', textContent: '✦ MÉGA-ÉVO' });
+    const megaBtn = el('button', { className: 'mega-btn', innerHTML: icon('spark') + 'MÉGA-ÉVO' });
     megaBtn.addEventListener('click', () => activateMega(player, mon));
     row.appendChild(megaBtn);
   }
 
   // FUSION button — 1 per battle, requires active mon + 1 reserve both Gen 1 + non-fused + alive
   if (canBattleFuse(player, mon)) {
-    const fuseBtn = el('button', { className: 'fusion-action-btn', textContent: '🔀 FUSION' });
+    const fuseBtn = el('button', { className: 'fusion-action-btn', innerHTML: icon('fusion') + 'FUSION' });
     fuseBtn.addEventListener('click', () => renderFusionPickMenu(player, mon));
     row.appendChild(fuseBtn);
   }
@@ -3073,7 +3112,7 @@ function renderFusionPickMenu(player, activeMon) {
     b.addEventListener('click', () => performFusion(player, activeMon, m));
     row.appendChild(b);
   });
-  const back = el('button', { textContent: '← RETOUR' });
+  const back = el('button', { innerHTML: icon('left') + 'RETOUR' });
   back.addEventListener('click', () => renderActionMenu(player, activeMon));
   row.appendChild(back);
 }
@@ -3116,18 +3155,18 @@ function renderItemMenu(player, mon) {
   const row = $('action-row');
   row.innerHTML = '';
   const potionBtn = el('button', { className: 'item-btn' });
-  potionBtn.innerHTML = `🧪 POTION MAX<span class="move-info">Soigne 100% PV · reste : ${player.items.maxPotion}</span>`;
+  potionBtn.innerHTML = `${icon('potion')}POTION MAX<span class="move-info">Soigne 100% PV · reste : ${player.items.maxPotion}</span>`;
   potionBtn.disabled = player.items.maxPotion === 0;
   potionBtn.addEventListener('click', () => renderItemTargetMenu(player, mon, 'maxPotion'));
   row.appendChild(potionBtn);
 
   const reviveBtn = el('button', { className: 'item-btn' });
-  reviveBtn.innerHTML = `💎 RAPPEL MAX<span class="move-info">Ranime + 100% PV · reste : ${player.items.maxRevive}</span>`;
+  reviveBtn.innerHTML = `${icon('revive')}RAPPEL MAX<span class="move-info">Ranime + 100% PV · reste : ${player.items.maxRevive}</span>`;
   reviveBtn.disabled = player.items.maxRevive === 0 || player.team.every(m => !m.fainted);
   reviveBtn.addEventListener('click', () => renderItemTargetMenu(player, mon, 'maxRevive'));
   row.appendChild(reviveBtn);
 
-  const back = el('button', { textContent: '← RETOUR' });
+  const back = el('button', { innerHTML: icon('left') + 'RETOUR' });
   back.addEventListener('click', () => renderActionMenu(player, mon));
   row.appendChild(back);
 }
@@ -3140,7 +3179,7 @@ function renderItemTargetMenu(player, mon, itemKey) {
     itemKey === 'maxRevive' ? m.fainted : !m.fainted
   );
   if (candidates.length === 0) {
-    const back = el('button', { textContent: '← RETOUR' });
+    const back = el('button', { innerHTML: icon('left') + 'RETOUR' });
     back.addEventListener('click', () => renderItemMenu(player, mon));
     row.appendChild(back);
     return;
@@ -3152,7 +3191,7 @@ function renderItemTargetMenu(player, mon, itemKey) {
     b.addEventListener('click', () => performItem(player, mon, itemKey, m));
     row.appendChild(b);
   });
-  const back = el('button', { textContent: '← RETOUR' });
+  const back = el('button', { innerHTML: icon('left') + 'RETOUR' });
   back.addEventListener('click', () => renderItemMenu(player, mon));
   row.appendChild(back);
 }
@@ -3189,7 +3228,7 @@ function renderMoveMenu(player, mon) {
     b.addEventListener('click', () => renderTargetMenu(player, mon, mv));
     row.appendChild(b);
   });
-  const back = el('button', { textContent: '← RETOUR' });
+  const back = el('button', { innerHTML: icon('left') + 'RETOUR' });
   back.addEventListener('click', () => renderActionMenu(player, mon));
   row.appendChild(back);
 }
@@ -3211,7 +3250,7 @@ function renderTargetMenu(player, mon, move) {
     b.addEventListener('click', () => performAttack(player, mon, move, t.player, t.mon));
     row.appendChild(b);
   });
-  const back = el('button', { textContent: '← RETOUR' });
+  const back = el('button', { innerHTML: icon('left') + 'RETOUR' });
   back.addEventListener('click', () => renderMoveMenu(player, mon));
   row.appendChild(back);
 }
@@ -3225,7 +3264,7 @@ function renderSwitchMenu(player, reserves) {
     b.addEventListener('click', () => performSwitch(player, m));
     row.appendChild(b);
   });
-  const back = el('button', { textContent: '← RETOUR' });
+  const back = el('button', { innerHTML: icon('left') + 'RETOUR' });
   back.addEventListener('click', () => renderActionMenu(player, activePokemon(player)));
   row.appendChild(back);
 }
@@ -3627,7 +3666,7 @@ function showTypeWheel() {
         <span><i class="weak"></i> ×½ / ×¼ peu</span>
         <span><i class="none"></i> ×0 aucun</span>
       </div>
-      <button class="primary close-modal">FERMER</button>
+      <button class="primary close-modal">${icon('x')}FERMER</button>
     </div>`;
   overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
   overlay.querySelector('.close-modal').addEventListener('click', () => overlay.remove());
@@ -3673,7 +3712,7 @@ function showTeamsPreview() {
   overlay.className = 'modal-overlay';
   const card = document.createElement('div');
   card.className = 'modal-card';
-  card.innerHTML = `<h2>👁️ Aperçu des équipes</h2>${allTeamsPreviewHTML()}<button class="primary close-modal">FERMER</button>`;
+  card.innerHTML = `<h2>👁️ Aperçu des équipes</h2>${allTeamsPreviewHTML()}<button class="primary close-modal">${icon('x')}FERMER</button>`;
   overlay.appendChild(card);
   overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
   card.querySelector('.close-modal').addEventListener('click', () => overlay.remove());
@@ -4320,6 +4359,14 @@ function showResult() {
 /* ============================================================
    INIT
    ============================================================ */
+// Fill static [data-icon] placeholders with inline SVG icons.
+function hydrateIcons(root) {
+  (root || document).querySelectorAll('[data-icon]').forEach(s => {
+    s.insertAdjacentHTML('afterbegin', icon(s.getAttribute('data-icon')));
+    s.removeAttribute('data-icon');
+  });
+}
+hydrateIcons();
 loadPokedex();
 renderSetup();
 
