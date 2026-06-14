@@ -445,6 +445,20 @@
   .action-row button { min-width: 140px; }
   .move-info { font-size: 9px; color: var(--muted); display: block; margin-top: 4px; }
 
+  /* REVIEW (intermediate landing) */
+  #review-screen { padding: 30px; max-width: 1320px; margin: 0 auto; }
+  #review-screen h1 {
+    text-align: center; font-size: 36px; letter-spacing: 5px;
+    background: linear-gradient(180deg, #ffe27a 0%, #f5a623 50%, #e94560 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    text-shadow: 0 0 24px rgba(245,166,35,0.4); margin-bottom: 6px;
+  }
+  #review-screen .subtitle { text-align: center; color: var(--muted); margin-bottom: 24px; font-size: 12px; }
+  #review-content .preview-teams { min-width: 0; }
+  .team-head-count { font-size: 10px; color: var(--muted); font-weight: 400; letter-spacing: 1px; margin-left: 6px; }
+  .review-actions { display: flex; gap: 14px; justify-content: center; margin-top: 26px; flex-wrap: wrap; }
+  .review-actions button { font-size: 13px; padding: 14px 26px; }
+
   /* RESULT */
   #result-screen { padding: 60px 20px; text-align: center; }
   #result-screen h1 {
@@ -1628,6 +1642,17 @@
   <div class="draft-summary" id="draft-summary"></div>
 </section>
 
+<!-- REVIEW SCREEN (intermediate landing before battle) -->
+<section id="review-screen" class="hidden">
+  <h1>REVUE DES ÉQUIPES</h1>
+  <p class="subtitle">Vérifiez les équipes, pouvoirs et objets avant le combat.</p>
+  <div id="review-content"></div>
+  <div class="review-actions">
+    <button id="review-back">← Retour aux pouvoirs</button>
+    <button id="review-start" class="primary">⚔ LANCER LE COMBAT ⚔</button>
+  </div>
+</section>
+
 <!-- BATTLE SCREEN -->
 <section id="battle-screen" class="hidden">
   <div class="battle-header">
@@ -2669,6 +2694,26 @@ function enterDraftPhase() {
   renderDraft();
 }
 
+// ---------- REVIEW PHASE (intermediate landing before battle) ----------
+function enterReviewPhase() {
+  gameState.phase = 'review';
+  $('draft-screen').classList.add('hidden');
+  $('setup-screen').classList.add('hidden');
+  $('review-screen').classList.remove('hidden');
+  $('review-content').innerHTML = allTeamsPreviewHTML();
+  window.scrollTo(0, 0);
+}
+$('review-back').addEventListener('click', () => {
+  gameState.phase = 'draft';
+  $('review-screen').classList.add('hidden');
+  $('draft-screen').classList.remove('hidden');
+  renderDraft();
+});
+$('review-start').addEventListener('click', () => {
+  $('review-screen').classList.add('hidden');
+  startBattle();
+});
+
 function renderDraft() {
   // Order row
   const row = $('draft-order-row');
@@ -2704,13 +2749,9 @@ function renderDraft() {
       $('setup-screen').classList.remove('hidden');
       renderSetup();
     });
-    const previewBtn = el('button', { textContent: '👁️ APERÇU ÉQUIPES' });
-    previewBtn.style.marginRight = '12px';
-    previewBtn.addEventListener('click', () => showTeamsPreview());
-    const btn = el('button', { className: 'primary', textContent: '⚔ COMMENCER LE COMBAT ⚔' });
-    btn.addEventListener('click', () => startBattle());
+    const btn = el('button', { className: 'primary', textContent: '👁️ REVOIR LES ÉQUIPES →' });
+    btn.addEventListener('click', () => enterReviewPhase());
     sum.appendChild(editBtn);
-    sum.appendChild(previewBtn);
     sum.appendChild(btn);
     return;
   }
@@ -3593,46 +3634,46 @@ function showTypeWheel() {
   document.body.appendChild(overlay);
 }
 
-// ---------- TEAM PREVIEW MODAL ----------
+// ---------- TEAM PREVIEW (shared by modal + review step) ----------
+function previewMonHTML(m, isFusionOnly) {
+  const shiny = m.isShiny ? '<span class="shiny-mark">✨</span>' : '';
+  const types = m.types.map(t => `<span class="type-pill t-${t}">${t.slice(0,3)}</span>`).join('');
+  const fusionFlag = isFusionOnly ? '<span class="slot-flag fusion">🔀 FUSION</span>' : '';
+  const ivTotal = ['hp','attack','defense','spAtk','spDef','speed'].reduce((s,k)=>s+m.ivs[k],0);
+  let ivCls = 'slot-chip iv';
+  if (ivTotal >= 180) ivCls += ' perfect'; else if (ivTotal >= 165) ivCls += ' high';
+  const natureChip = m.nature ? `<span class="slot-chip nature" title="Nature">${m.nature}</span>` : '';
+  const itemChip = m.heldItem ? `<span class="slot-chip item" title="Objet tenu : ${m.heldItem.name}">🎒 ${m.heldItem.name}</span>` : '';
+  const megaCap = (m.megaForms && m.megaForms.length > 0) ? '<span class="mega-cap" title="Méga-Évolution possible">Ⓜ</span> ' : '';
+  return `
+    <div class="preview-mon${isFusionOnly ? ' fusion' : ''}">
+      <img src="${m.spriteStatic || m.sprite}" alt="${m.name}" />
+      <div class="pm-name">${megaCap}${shiny}${m.name}</div>
+      <div class="pm-types">${types}</div>
+      <div class="pm-chips"><span class="${ivCls}" title="Score d'IV total">IV ${ivTotal}/186</span>${natureChip}</div>
+      ${ivGridDetailHTML(m.ivs)}
+      ${(itemChip || fusionFlag) ? `<div class="pm-chips">${itemChip}${fusionFlag}</div>` : ''}
+    </div>`;
+}
+function previewTeamCardHTML(p) {
+  const teamMons = [...(p.team || []), ...(p.fusionReserve || [])];
+  const monsHtml = teamMons.map(m => previewMonHTML(m, (p.fusionReserve || []).includes(m))).join('');
+  const powerTxt = p.power ? `${POWERS[p.power].icon} ${POWERS[p.power].name}` : '';
+  return `
+    <div class="preview-team-card">
+      <div class="team-head">${p.name}${p.isAI ? ' 🤖' : ''}${powerTxt ? ' · ' + powerTxt : ''} <span class="team-head-count">${teamMons.length} Pokémon</span></div>
+      <div class="preview-team-mons">${monsHtml}</div>
+    </div>`;
+}
+function allTeamsPreviewHTML() {
+  return '<div class="preview-teams">' + gameState.players.map(previewTeamCardHTML).join('') + '</div>';
+}
 function showTeamsPreview() {
   const overlay = document.createElement('div');
   overlay.className = 'modal-overlay';
-  let html = '<div class="preview-teams">';
-  for (const p of gameState.players) {
-    const teamMons = [...(p.team || []), ...(p.fusionReserve || [])];
-    let monsHtml = '';
-    for (const m of teamMons) {
-      const isFusionOnly = (p.fusionReserve || []).includes(m);
-      const shiny = m.isShiny ? '<span class="shiny-mark">✨</span>' : '';
-      const types = m.types.map(t => `<span class="type-pill t-${t}">${t.slice(0,3)}</span>`).join('');
-      const fusionFlag = isFusionOnly ? '<span class="slot-flag fusion">🔀 FUSION</span>' : '';
-      const ivTotal = ['hp','attack','defense','spAtk','spDef','speed'].reduce((s,k)=>s+m.ivs[k],0);
-      let ivCls = 'slot-chip iv';
-      if (ivTotal >= 180) ivCls += ' perfect'; else if (ivTotal >= 165) ivCls += ' high';
-      const natureChip = m.nature ? `<span class="slot-chip nature" title="Nature">${m.nature}</span>` : '';
-      const itemChip = m.heldItem ? `<span class="slot-chip item" title="Objet tenu : ${m.heldItem.name}">🎒 ${m.heldItem.name}</span>` : '';
-      const megaCap = (m.megaForms && m.megaForms.length > 0) ? '<span class="mega-cap" title="Méga-Évolution possible">Ⓜ</span> ' : '';
-      monsHtml += `
-        <div class="preview-mon${isFusionOnly ? ' fusion' : ''}">
-          <img src="${m.spriteStatic || m.sprite}" alt="${m.name}" />
-          <div class="pm-name">${megaCap}${shiny}${m.name}</div>
-          <div class="pm-types">${types}</div>
-          <div class="pm-chips"><span class="${ivCls}" title="Score d'IV total">IV ${ivTotal}/186</span>${natureChip}</div>
-          ${ivGridDetailHTML(m.ivs)}
-          ${(itemChip || fusionFlag) ? `<div class="pm-chips">${itemChip}${fusionFlag}</div>` : ''}
-        </div>`;
-    }
-    const powerTxt = p.power ? `${POWERS[p.power].icon} ${POWERS[p.power].name}` : '';
-    html += `
-      <div class="preview-team-card">
-        <div class="team-head">${p.name}${powerTxt ? ' · ' + powerTxt : ''}</div>
-        <div class="preview-team-mons">${monsHtml}</div>
-      </div>`;
-  }
-  html += '</div>';
   const card = document.createElement('div');
   card.className = 'modal-card';
-  card.innerHTML = `<h2>👁️ Aperçu des équipes</h2>${html}<button class="primary close-modal">FERMER</button>`;
+  card.innerHTML = `<h2>👁️ Aperçu des équipes</h2>${allTeamsPreviewHTML()}<button class="primary close-modal">FERMER</button>`;
   overlay.appendChild(card);
   overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
   card.querySelector('.close-modal').addEventListener('click', () => overlay.remove());
