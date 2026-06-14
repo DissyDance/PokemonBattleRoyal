@@ -3213,11 +3213,18 @@ function applyTeamDeathBuff(player) {
 // ---------- FUSION ----------
 // Infinite Fusion autogen sprites, served via jsDelivr (CDN cached + CORS-enabled).
 // URL scheme: .../Battlers/{headId}/{headId}.{bodyId}.png  (head = A, body = B).
-// IF dex IDs 1–251 are IDENTICAL to the National Dex (Gen 1 + Gen 2), so our
-// national-dex ids map 1:1 in that range. Beyond 251 IF uses its own numbering,
-// so we only pull IF sprites when BOTH parents are ≤ 251 and fall back otherwise.
+// IF uses its OWN dex numbering: ids 1–251 match the National Dex (Gen 1 + 2),
+// but Gen 3–7 are renumbered. NAT_TO_IF maps the 169 later-gen mons IF actually
+// includes (national id → IF id, verified vs the official IF dex). Together with
+// the 1:1 Gen 1+2 range, that covers 420 national mons with real designed sprites.
 const IF_FUSION_BASE = 'https://cdn.jsdelivr.net/gh/Z1R343L/autogen-fusion-sprites/Battlers';
 const IF_DEX_MAX = 251;
+const NAT_TO_IF = { 252:276, 253:277, 254:278, 255:279, 256:280, 257:281, 258:282, 259:283, 260:284, 280:285, 281:286, 282:287, 285:404, 286:355, 287:385, 288:386, 289:309, 290:382, 291:356, 292:289, 298:252, 299:325, 303:300, 304:390, 305:391, 306:333, 315:401, 320:387, 321:314, 328:392, 329:393, 330:334, 345:301, 346:302, 347:303, 348:304, 349:394, 350:335, 352:290, 353:405, 354:357, 355:311, 356:312, 359:310, 360:253, 371:395, 372:396, 373:336, 374:291, 375:292, 376:293, 380:378, 381:379, 382:340, 383:341, 384:342, 385:381, 386:380, 387:316, 388:317, 389:318, 390:319, 391:320, 392:321, 393:322, 394:323, 395:324, 399:294, 400:383, 403:388, 404:389, 405:332, 406:400, 407:352, 408:305, 409:306, 410:307, 411:308, 424:254, 425:402, 426:353, 427:403, 428:354, 429:255, 430:256, 438:257, 439:258, 440:259, 442:295, 443:297, 444:298, 445:299, 446:260, 447:384, 448:296, 458:261, 461:262, 462:263, 463:264, 464:265, 465:266, 466:267, 467:268, 468:269, 469:270, 470:271, 471:272, 472:273, 473:274, 474:275, 475:288, 476:326, 477:313, 479:358, 483:343, 484:344, 486:346, 487:345, 491:347, 493:315, 546:408, 547:360, 551:409, 552:410, 553:361, 562:411, 563:362, 570:399, 571:338, 577:406, 578:407, 579:359, 595:412, 596:363, 597:413, 598:364, 599:397, 600:398, 601:337, 607:365, 608:366, 609:367, 610:414, 611:415, 612:368, 618:420, 622:416, 623:369, 624:330, 625:331, 633:375, 634:376, 635:377, 636:419, 637:374, 643:349, 644:350, 646:351, 649:348, 661:417, 662:418, 663:372, 679:327, 680:328, 681:329, 700:339, 707:371, 771:370, 778:373 };
+// National dex id → IF sprite id, or null if IF has no sprite for this mon.
+function toIFId(nationalId) {
+  if (nationalId <= IF_DEX_MAX) return nationalId; // Gen 1+2: identity
+  return NAT_TO_IF[nationalId] || null;
+}
 function infiniteFusionURL(headId, bodyId) {
   return `${IF_FUSION_BASE}/${headId}/${headId}.${bodyId}.png`;
 }
@@ -3244,86 +3251,27 @@ function fusionName(a, b) {
   return (na.slice(0, cutA) + nb.slice(cutB)).replace(/\s+/g, '');
 }
 
-// Generate a unique composite sprite via canvas: head of A (top 55%) + body of B (bottom 45%).
-// Returns a PNG data URL, or null on failure (CORS / load error).
-async function generateCanvasFusion(srcA, srcB) {
-  return new Promise((resolve) => {
-    const imgA = new Image();
-    const imgB = new Image();
-    imgA.crossOrigin = 'anonymous';
-    imgB.crossOrigin = 'anonymous';
-    let pending = 2, aborted = false;
-    const fail = () => { if (!aborted) { aborted = true; resolve(null); } };
-    const done = () => {
-      if (aborted) return;
-      if (--pending > 0) return;
-      try {
-        const size = 192; // upscale for cleaner result
-        const c = document.createElement('canvas');
-        c.width = size; c.height = size;
-        const ctx = c.getContext('2d');
-        ctx.imageSmoothingEnabled = false;
-        const seam = Math.round(size * 0.55); // split at 55% height
-        // Body B — bottom portion
-        ctx.save();
-        ctx.beginPath(); ctx.rect(0, seam, size, size - seam); ctx.clip();
-        ctx.drawImage(imgB, 0, 0, size, size);
-        ctx.restore();
-        // Head A — top portion
-        ctx.save();
-        ctx.beginPath(); ctx.rect(0, 0, size, seam); ctx.clip();
-        ctx.drawImage(imgA, 0, 0, size, size);
-        ctx.restore();
-        // Subtle seam blend: 8px gradient mask overlay
-        const blend = ctx.createLinearGradient(0, seam - 6, 0, seam + 6);
-        blend.addColorStop(0, 'rgba(255,255,255,0)');
-        blend.addColorStop(0.5, 'rgba(255,255,255,0.18)');
-        blend.addColorStop(1, 'rgba(255,255,255,0)');
-        ctx.fillStyle = blend;
-        ctx.fillRect(0, seam - 6, size, 12);
-        resolve(c.toDataURL('image/png'));
-      } catch (e) {
-        console.warn('Canvas fusion failed:', e);
-        resolve(null);
-      }
-    };
-    imgA.onload = done;
-    imgB.onload = done;
-    imgA.onerror = fail;
-    imgB.onerror = fail;
-    imgA.src = srcA;
-    imgB.src = srcB;
-    // Safety timeout (5s)
-    setTimeout(() => fail(), 5000);
-  });
-}
-
 async function buildFusion(a, b) {
-  // Generate a unique sprite for every fusion, best source first:
-  // - Both parents Gen 1 or Gen 2 (id ≤ 251) → Infinite Fusion designed sprite
+  // Sprite selection — always prefer the real Infinite Fusion designed sprite:
+  // - Both parents in IF's roster (toIFId != null, ~420 national mons) → IF sprite
   //   (head = A, body = B), verified to load.
-  // - Otherwise / on miss → canvas composite (head A + body B) → unique
-  // - Last-resort fallback → parent A sprite
+  // - Otherwise → clean fallback: the dominant parent's own sprite (no canvas
+  //   "half-and-half" splice — that looked bad and is no longer used).
   let sprite, spriteStatic;
-  if (a.id <= IF_DEX_MAX && b.id <= IF_DEX_MAX) {
-    const ifUrl = infiniteFusionURL(a.id, b.id);
+  const ifA = toIFId(a.id), ifB = toIFId(b.id);
+  if (ifA && ifB) {
+    const ifUrl = infiniteFusionURL(ifA, ifB);
     if (await loadImageOK(ifUrl)) {
       sprite = ifUrl;
       spriteStatic = ifUrl;
     }
   }
   if (!sprite) {
-    const composite = await generateCanvasFusion(
-      a.spriteStatic || a.sprite,
-      b.spriteStatic || b.sprite
-    );
-    if (composite) {
-      sprite = composite;
-      spriteStatic = composite;
-    } else {
-      sprite = a.sprite || a.spriteStatic;
-      spriteStatic = a.spriteStatic || a.sprite;
-    }
+    // Dominant parent = higher base-stat total; show its full sprite cleanly.
+    const bst = (m) => Object.values(m.stats).reduce((s, v) => s + v, 0);
+    const dom = bst(a) >= bst(b) ? a : b;
+    sprite = dom.sprite || dom.spriteStatic;
+    spriteStatic = dom.spriteStatic || dom.sprite;
   }
   const types = [...new Set([...a.types, ...b.types])].slice(0, 2);
   // Fusion stats = SUM of both parents per stat
