@@ -586,7 +586,7 @@
     padding: 6px 12px; border-radius: 12px;
     background: rgba(0,0,0,0.45); border: 1px solid rgba(255,255,255,0.12);
     display: inline-flex; align-items: center; gap: 8px;
-    margin-left: 14px;
+    margin-left: 14px; cursor: help;
   }
   .weather-icon { font-size: 16px; }
   .arena.weather-sun::after {
@@ -944,23 +944,9 @@
     50% { transform: translateY(-2px) scale(1.08); }
   }
 
-  /* Preview mon: chips row + labeled IV grid */
+  /* Preview mon: chips row on the flip-card front */
   .preview-mon .pm-chips { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; margin-top: 5px; }
   .slot-chip.nature { color: #b6e3ff; border-color: rgba(120,200,255,0.3); }
-  .preview-mon .pm-ivgrid {
-    display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; margin-top: 6px;
-  }
-  .preview-mon .iv-cell {
-    display: flex; flex-direction: column; align-items: center; gap: 1px;
-    font-family: 'Orbitron', sans-serif; font-size: 8px; line-height: 1;
-    padding: 3px 2px; border-radius: 5px;
-    background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08);
-  }
-  .preview-mon .iv-cell i { font-style: normal; font-size: 6px; color: var(--muted); letter-spacing: 0.3px; }
-  .preview-mon .iv-cell b { font-weight: 700; color: #cdd3e0; }
-  .preview-mon .iv-cell.high b { color: #f1c40f; }
-  .preview-mon .iv-cell.max { border-color: rgba(94,229,154,0.5); background: rgba(46,204,113,0.12); }
-  .preview-mon .iv-cell.max b { color: #5ee59a; text-shadow: 0 0 6px rgba(94,229,154,0.5); }
 
   /* Fusion-only slot badge */
   .team-slot.fusion-only {
@@ -1077,22 +1063,69 @@
     color: var(--accent-2); letter-spacing: 3px; text-transform: uppercase;
     margin-bottom: 8px;
   }
-  .preview-team-mons {
-    display: flex; gap: 8px; flex-wrap: wrap;
-  }
+  .preview-team-mons { display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-start; }
+  /* Card flip */
   .preview-mon {
-    background: rgba(15,22,38,0.85); border-radius: 10px; padding: 8px;
-    width: 108px; text-align: center; border: 1px solid rgba(255,255,255,0.06);
-    position: relative;
+    flex-shrink: 0;
+    width: 90px; height: 210px;
+    perspective: 600px; cursor: pointer; position: relative;
   }
-  .preview-mon.fusion { border-color: rgba(0,212,255,0.4); border-style: dashed; }
-  .preview-mon img { width: 64px; height: 64px; image-rendering: pixelated; }
-  .preview-mon .pm-name {
-    font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: 10px; color: var(--txt);
-    text-transform: capitalize; margin-top: 2px;
-    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  .pm-card-inner {
+    position: relative; width: 100%; height: 100%;
+    transform-style: preserve-3d;
+    transition: transform 0.5s cubic-bezier(0.4, 0.2, 0.2, 1);
   }
+  .preview-mon.flipped .pm-card-inner { transform: rotateY(180deg); }
+  .pm-front, .pm-back {
+    position: absolute; inset: 0;
+    backface-visibility: hidden; -webkit-backface-visibility: hidden;
+    border-radius: 8px; padding: 6px; text-align: center;
+    background: rgba(15,22,38,0.85); border: 1px solid rgba(255,255,255,0.06);
+    overflow: hidden;
+  }
+  .preview-mon.fusion .pm-front { border-color: rgba(0,212,255,0.4); border-style: dashed; }
+  .pm-back { transform: rotateY(180deg); display: flex; flex-direction: column; justify-content: center; }
+  .preview-mon img { width: 60px; height: 60px; image-rendering: pixelated; }
+  .preview-mon .pm-name { font-size: 8px; color: var(--txt); text-transform: capitalize; margin-top: 2px; }
   .preview-mon .pm-types { display: flex; gap: 2px; justify-content: center; margin-top: 2px; }
+  .pm-back-name {
+    font-family: 'Press Start 2P', monospace; font-size: 7px;
+    color: var(--txt); text-transform: capitalize; margin-bottom: 5px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .pm-stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; }
+  .pm-stat-entry {
+    display: flex; flex-direction: column; align-items: center;
+    background: rgba(0,0,0,0.35); border-radius: 4px; padding: 3px 2px;
+    font-family: 'Press Start 2P', monospace; font-size: 6px;
+  }
+  .pm-stat-entry .ps-lbl { color: var(--muted); }
+  .pm-stat-entry .ps-val { color: var(--accent-2); font-size: 7px; margin-top: 1px; }
+  .pm-flip-hint {
+    font-family: 'Press Start 2P', monospace; font-size: 6px;
+    color: rgba(255,255,255,0.22); margin-top: 4px;
+  }
+  /* IV hover overlay */
+  .pm-iv-overlay {
+    position: absolute; inset: 0; border-radius: 8px;
+    background: rgba(8,12,26,0.96); padding: 8px 6px;
+    display: flex; flex-direction: column; justify-content: center; gap: 2px;
+    opacity: 0; transition: opacity 0.18s ease;
+    pointer-events: none; z-index: 5;
+  }
+  .preview-mon:not(.flipped):hover .pm-iv-overlay { opacity: 1; }
+  .pm-iv-row {
+    display: flex; justify-content: space-between; gap: 4px;
+    font-family: 'Press Start 2P', monospace; font-size: 7px; padding: 0 2px;
+  }
+  .pm-iv-lbl { color: var(--muted); }
+  .pm-iv-val { color: #5ee59a; }
+  .pm-iv-val.max-iv { color: #ffd700; text-shadow: 0 0 5px #ffd700; }
+  .pm-iv-val.low-iv { color: var(--bad); }
+  .pm-iv-sep {
+    border: none; border-top: 1px solid rgba(255,255,255,0.1);
+    margin: 3px 0;
+  }
 
   /* Type wheel button (in setup/battle) */
   .type-wheel-btn {
@@ -1600,6 +1633,79 @@
     100% { opacity: 0; transform: translate(-50%, -50%) rotate(var(--angle)) translateX(200px) scale(0.2); }
   }
 
+  /* Weather body backgrounds */
+  body.battle-weather-sun {
+    background:
+      radial-gradient(circle at 50% 0%, rgba(255,200,50,0.35) 0%, transparent 55%),
+      radial-gradient(circle at 18% 8%, rgba(255,180,30,0.2) 0%, transparent 45%),
+      radial-gradient(circle at 82% 92%, rgba(233,120,30,0.18) 0%, transparent 45%),
+      linear-gradient(135deg, #150a00 0%, #251200 50%, #1a0d00 100%);
+    background-attachment: fixed;
+  }
+  body.battle-weather-rain {
+    background:
+      radial-gradient(circle at 50% 0%, rgba(60,120,255,0.22) 0%, transparent 55%),
+      radial-gradient(circle at 18% 8%, rgba(40,100,220,0.16) 0%, transparent 45%),
+      radial-gradient(circle at 82% 92%, rgba(30,80,200,0.18) 0%, transparent 45%),
+      linear-gradient(135deg, #00040f 0%, #020918 50%, #010710 100%);
+    background-attachment: fixed;
+  }
+  body.battle-weather-sandstorm {
+    background:
+      radial-gradient(circle at 50% 30%, rgba(200,160,60,0.28) 0%, transparent 55%),
+      radial-gradient(circle at 18% 8%, rgba(190,140,50,0.2) 0%, transparent 45%),
+      radial-gradient(circle at 82% 92%, rgba(170,120,40,0.18) 0%, transparent 45%),
+      linear-gradient(135deg, #140a00 0%, #1e1000 50%, #160b00 100%);
+    background-attachment: fixed;
+  }
+  body.battle-weather-hail {
+    background:
+      radial-gradient(circle at 50% 0%, rgba(160,210,255,0.22) 0%, transparent 55%),
+      radial-gradient(circle at 18% 8%, rgba(140,190,255,0.16) 0%, transparent 45%),
+      radial-gradient(circle at 82% 92%, rgba(100,170,255,0.18) 0%, transparent 45%),
+      linear-gradient(135deg, #000810 0%, #010c1a 50%, #000a12 100%);
+    background-attachment: fixed;
+  }
+  /* Weather-specific arena overrides */
+  .arena.weather-sun {
+    background:
+      radial-gradient(ellipse 70% 40% at 50% 95%, rgba(255,180,40,0.22) 0%, transparent 70%),
+      radial-gradient(circle at 50% 5%, rgba(255,210,60,0.3) 0%, transparent 50%),
+      linear-gradient(180deg, #1a0f00 0%, #2a1500 55%, #3a2010 100%) !important;
+  }
+  .arena.weather-rain {
+    background:
+      radial-gradient(ellipse 70% 40% at 50% 95%, rgba(80,120,255,0.18) 0%, transparent 70%),
+      radial-gradient(circle at 50% 5%, rgba(60,100,220,0.18) 0%, transparent 50%),
+      linear-gradient(180deg, #000714 0%, #040d28 55%, #060f22 100%) !important;
+  }
+  .arena.weather-sandstorm {
+    background:
+      radial-gradient(ellipse 70% 40% at 50% 95%, rgba(200,155,60,0.22) 0%, transparent 70%),
+      radial-gradient(circle at 50% 5%, rgba(185,140,45,0.18) 0%, transparent 50%),
+      linear-gradient(180deg, #160d00 0%, #251500 55%, #2e1a00 100%) !important;
+  }
+  .arena.weather-hail {
+    background:
+      radial-gradient(ellipse 70% 40% at 50% 95%, rgba(160,210,255,0.15) 0%, transparent 70%),
+      radial-gradient(circle at 50% 5%, rgba(140,190,255,0.14) 0%, transparent 50%),
+      linear-gradient(180deg, #000a14 0%, #040e1e 55%, #050f22 100%) !important;
+  }
+  /* Floating weather tooltip (JS-placed, fixed) */
+  .weather-tip-float {
+    position: fixed; z-index: 9999; pointer-events: none;
+    background: rgba(8,12,26,0.97);
+    border: 1px solid rgba(245,166,35,0.5);
+    border-radius: 10px; padding: 10px 14px;
+    font-family: 'Press Start 2P', monospace; font-size: 8px;
+    color: #f1f1f1; line-height: 2; white-space: nowrap;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.7);
+  }
+  .weather-tip-float .wt-row { display: flex; gap: 8px; align-items: center; }
+  .weather-tip-float .wt-boost { color: #5ee59a; }
+  .weather-tip-float .wt-nerf  { color: var(--bad); }
+  .weather-tip-float .wt-chip  { color: var(--accent-2); }
+
   /* TYPE COLORS */
   .t-normal{background:#a8a878}.t-fire{background:#f08030}.t-water{background:#6890f0}
   .t-electric{background:#f8d030;color:#333}.t-grass{background:#78c850}.t-ice{background:#98d8d8;color:#333}
@@ -1801,10 +1907,54 @@ async function loadPokedex() {
     for (const p of POKEDEX) FR_TO_ENSLUG[normalize(p.fr)] = p.enSlug;
     console.log('[POKEDEX] loaded', POKEDEX.length, 'pokémon (FR)');
     populateDatalist();
+    // Background: load Gen 8-9 French names via PokeAPI
+    loadGen8Plus().catch(e => console.warn('[POKEDEX] Gen 8-9 failed:', e));
   } catch (e) {
     console.error('Pokédex load failed:', e);
   } finally {
     hideLoader();
+  }
+}
+
+// Loads Gen 8-9 Pokémon French names from PokeAPI GraphQL + species list
+async function loadGen8Plus() {
+  // Step 1: species id → English slug for ids 810-1025
+  const specRes = await fetch(API + 'pokemon-species?limit=1025&offset=0');
+  if (!specRes.ok) return;
+  const specData = await specRes.json();
+  const idToSlug = {};
+  for (const s of specData.results) {
+    const id = parseInt(s.url.split('/').filter(Boolean).pop(), 10);
+    if (id >= 810 && id <= 1025) idToSlug[id] = s.name;
+  }
+
+  // Step 2: French names via PokeAPI GraphQL (one request, all gens)
+  const gqlBody = JSON.stringify({
+    query: '{ pokemon_v2_pokemonspeciesname(where: {language_id: {_eq: 5}, pokemon_species_id: {_gte: 810, _lte: 1025}}) { name pokemon_species_id } }'
+  });
+  const gqlRes = await fetch('https://beta.pokeapi.co/graphql/v1beta', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+    body: gqlBody
+  });
+  if (!gqlRes.ok) return;
+  const gqlData = await gqlRes.json();
+  const frEntries = gqlData?.data?.pokemon_v2_pokemonspeciesname || [];
+
+  let added = 0;
+  for (const { name: frName, pokemon_species_id: id } of frEntries) {
+    const slug = idToSlug[id];
+    if (!slug) continue;
+    const normFr = normalize(frName);
+    if (FR_TO_ENSLUG[normFr]) continue; // already present
+    POKEDEX.push({ id, fr: frName, en: slug, enSlug: slug });
+    POKEDEX_NAMES_FR.push(frName);
+    FR_TO_ENSLUG[normFr] = slug;
+    added++;
+  }
+  if (added > 0) {
+    populateDatalist();
+    console.log('[POKEDEX] Gen 8-9 added:', added, '— total:', POKEDEX.length);
   }
 }
 
@@ -2391,9 +2541,12 @@ function renderSetup() {
 
     randBtn.addEventListener('click', async () => {
       if (p.team.length >= 7) { errBox.textContent = 'Équipe pleine (max 7).'; return; }
+      if (randBtn.disabled) return;
+      randBtn.disabled = true;
       const name = POKEDEX_NAMES_FR[Math.floor(Math.random() * POKEDEX_NAMES_FR.length)];
       monInput.value = name;
-      addMon();
+      await addMon();
+      randBtn.disabled = false;
     });
 
     card.querySelector('.p-load-preset').addEventListener('click', () => showPresetPicker(p, card));
@@ -2504,17 +2657,6 @@ function ivChipHTML(ivs) {
     ? `<span class="slot-chip star" title="IV parfaits : ${perfect.join(', ')}">★ ${perfect.length}</span>`
     : '';
   return `<span class="${cls}" title="Score d'IV total">IV ${total}/186</span>${star}`;
-}
-
-// Detailed labeled IV grid for the team-preview modal (per-stat, 31s highlighted).
-function ivGridDetailHTML(ivs) {
-  const order = ['hp', 'attack', 'defense', 'spAtk', 'spDef', 'speed'];
-  const cells = order.map(k => {
-    const v = ivs[k];
-    const cls = v === 31 ? 'iv-cell max' : (v >= 28 ? 'iv-cell high' : 'iv-cell');
-    return `<span class="${cls}"><i>${IV_LABELS[k]}</i><b>${v}</b></span>`;
-  }).join('');
-  return `<div class="pm-ivgrid">${cells}</div>`;
 }
 
 function renderTeam(card, player) {
@@ -3674,24 +3816,45 @@ function showTypeWheel() {
 }
 
 // ---------- TEAM PREVIEW (shared by modal + review step) ----------
+// Flip card (Miguel's design, integrated): front = sprite/types/IV-total +
+// hover IV overlay; back = real stat grid. Click to flip (delegated handler).
+const PREVIEW_IV_ORDER = ['hp', 'attack', 'defense', 'spAtk', 'spDef', 'speed'];
+const PREVIEW_IV_LBL = { hp: 'PV', attack: 'ATQ', defense: 'DEF', spAtk: 'ATS', spDef: 'DES', speed: 'VIT' };
 function previewMonHTML(m, isFusionOnly) {
   const shiny = m.isShiny ? '<span class="shiny-mark">✨</span>' : '';
   const types = m.types.map(t => `<span class="type-pill t-${t}">${t.slice(0,3)}</span>`).join('');
-  const fusionFlag = isFusionOnly ? '<span class="slot-flag fusion">🔀 FUSION</span>' : '';
-  const ivTotal = ['hp','attack','defense','spAtk','spDef','speed'].reduce((s,k)=>s+m.ivs[k],0);
-  let ivCls = 'slot-chip iv';
-  if (ivTotal >= 180) ivCls += ' perfect'; else if (ivTotal >= 165) ivCls += ' high';
-  const natureChip = m.nature ? `<span class="slot-chip nature" title="Nature">${m.nature}</span>` : '';
+  const fusionFlag = isFusionOnly ? '<div class="slot-flag fusion">🔀 FUSION</div>' : '';
+  const natureChip = m.nature ? `<span class="slot-chip nature">${m.nature}</span>` : '';
   const itemChip = m.heldItem ? `<span class="slot-chip item" title="Objet tenu : ${m.heldItem.name}">🎒 ${m.heldItem.name}</span>` : '';
   const megaCap = (m.megaForms && m.megaForms.length > 0) ? '<span class="mega-cap" title="Méga-Évolution possible">Ⓜ</span> ' : '';
+  const ivTotal = PREVIEW_IV_ORDER.reduce((s, k) => s + m.ivs[k], 0);
+  let ivCls = 'slot-chip iv';
+  if (ivTotal >= 180) ivCls += ' perfect'; else if (ivTotal >= 165) ivCls += ' high';
+  const statsGrid = PREVIEW_IV_ORDER.map(k =>
+    `<div class="pm-stat-entry"><span class="ps-lbl">${PREVIEW_IV_LBL[k]}</span><span class="ps-val">${m.stats[k]}</span></div>`).join('');
+  const ivRows = PREVIEW_IV_ORDER.map(k => {
+    const v = m.ivs[k]; const c = v === 31 ? 'max-iv' : (v < 20 ? 'low-iv' : '');
+    return `<div class="pm-iv-row"><span class="pm-iv-lbl">${PREVIEW_IV_LBL[k]}</span><span class="pm-iv-val ${c}">${v}/31</span></div>`;
+  }).join('') + `<hr class="pm-iv-sep"><div class="pm-iv-row"><span class="pm-iv-lbl">TOTAL</span><span class="pm-iv-val">${ivTotal}/186</span></div>`;
   return `
     <div class="preview-mon${isFusionOnly ? ' fusion' : ''}">
-      <img src="${m.spriteStatic || m.sprite}" alt="${m.name}" />
-      <div class="pm-name">${megaCap}${shiny}${m.name}</div>
-      <div class="pm-types">${types}</div>
-      <div class="pm-chips"><span class="${ivCls}" title="Score d'IV total">IV ${ivTotal}/186</span>${natureChip}</div>
-      ${ivGridDetailHTML(m.ivs)}
-      ${(itemChip || fusionFlag) ? `<div class="pm-chips">${itemChip}${fusionFlag}</div>` : ''}
+      <div class="pm-card-inner">
+        <div class="pm-front">
+          <img src="${m.spriteStatic || m.sprite}" alt="${m.name}" />
+          <div class="pm-name">${megaCap}${shiny}${m.name}</div>
+          <div class="pm-types">${types}</div>
+          <div class="pm-chips"><span class="${ivCls}">IV ${ivTotal}/186</span>${natureChip}</div>
+          ${itemChip ? `<div class="pm-chips">${itemChip}</div>` : ''}
+          ${fusionFlag}
+          <div class="pm-flip-hint">↕ stats</div>
+          <div class="pm-iv-overlay">${ivRows}</div>
+        </div>
+        <div class="pm-back">
+          <div class="pm-back-name">${m.name}</div>
+          <div class="pm-stat-grid">${statsGrid}</div>
+          <div class="pm-flip-hint" style="margin-top:6px;">↕ infos</div>
+        </div>
+      </div>
     </div>`;
 }
 function previewTeamCardHTML(p) {
@@ -3718,6 +3881,11 @@ function showTeamsPreview() {
   card.querySelector('.close-modal').addEventListener('click', () => overlay.remove());
   document.body.appendChild(overlay);
 }
+// Flip any preview card on click (delegated → works for modal + review screen).
+document.addEventListener('click', (e) => {
+  const pm = e.target.closest('.preview-mon');
+  if (pm) pm.classList.toggle('flipped');
+});
 
 // ---------- EFFECTIVENESS LABEL ----------
 function effLabel(mult) {
@@ -3801,10 +3969,34 @@ function statusIcon(status) {
 
 // ---------- WEATHER ----------
 const WEATHER_DATA = {
-  sun:       { name: 'Soleil',           icon: '☀️' },
-  rain:      { name: 'Pluie',            icon: '🌧️' },
-  sandstorm: { name: 'Tempête de Sable', icon: '🌪️' },
-  hail:      { name: 'Grêle',            icon: '❄️' }
+  sun: {
+    name: 'Soleil', icon: '☀️',
+    tip: [
+      { cls:'wt-boost', t:'🔥 Feu ×1.5 (attaque boostée)' },
+      { cls:'wt-nerf',  t:'💧 Eau ×0.5 (attaque réduite)' }
+    ]
+  },
+  rain: {
+    name: 'Pluie', icon: '🌧️',
+    tip: [
+      { cls:'wt-boost', t:'💧 Eau ×1.5 (attaque boostée)' },
+      { cls:'wt-nerf',  t:'🔥 Feu ×0.5 (attaque réduite)' }
+    ]
+  },
+  sandstorm: {
+    name: 'Tempête de Sable', icon: '🌪️',
+    tip: [
+      { cls:'wt-chip',  t:'−1/16 PV/tour (types non-Roc/Sol/Acier)' },
+      { cls:'wt-boost', t:'🪨 Roc, Sol, Acier : immunisés' }
+    ]
+  },
+  hail: {
+    name: 'Grêle', icon: '❄️',
+    tip: [
+      { cls:'wt-chip',  t:'−1/16 PV/tour (types non-Glace)' },
+      { cls:'wt-boost', t:'❄️ Glace : immunisée' }
+    ]
+  }
 };
 function rollWeather() {
   const choices = Object.keys(WEATHER_DATA);
@@ -3819,18 +4011,47 @@ function rotateWeather() {
   log(`La météo change : ${WEATHER_DATA[next].icon} ${WEATHER_DATA[next].name} pour 3 manches.`, 'crit');
   updateWeatherUI();
 }
+let _weatherTip = null;
+function getWeatherTip() {
+  if (!_weatherTip) {
+    _weatherTip = document.createElement('div');
+    _weatherTip.className = 'weather-tip-float';
+    _weatherTip.style.display = 'none';
+    document.body.appendChild(_weatherTip);
+  }
+  return _weatherTip;
+}
+
 function updateWeatherUI() {
   const w = gameState.weather?.type;
+  const WCLS = ['weather-sun','weather-rain','weather-sandstorm','weather-hail'];
+
+  // Arena background
   const arena = $('arena');
   if (arena) {
-    arena.classList.remove('weather-sun', 'weather-rain', 'weather-sandstorm', 'weather-hail');
+    arena.classList.remove(...WCLS);
     if (w) arena.classList.add('weather-' + w);
   }
+  // Body background
+  document.body.classList.remove(...WCLS.map(c => 'battle-' + c));
+  if (w) document.body.classList.add('battle-weather-' + w);
+
   const banner = $('weather-banner');
   const txt = $('weather-text');
   if (banner && txt && w) {
     banner.querySelector('.weather-icon').textContent = WEATHER_DATA[w].icon;
     txt.textContent = WEATHER_DATA[w].name + ' · ' + Math.max(0, gameState.weather.endsAtRound - gameState.turnNumber + 1) + ' manches';
+
+    // Floating tooltip on hover
+    const tip = getWeatherTip();
+    tip.innerHTML = WEATHER_DATA[w].tip.map(r => `<div class="wt-row ${r.cls}">${r.t}</div>`).join('');
+    banner.onmouseenter = () => {
+      const r = banner.getBoundingClientRect();
+      tip.style.left = r.left + 'px';
+      tip.style.top  = (r.bottom + 8) + 'px';
+      tip.style.display = 'block';
+    };
+    banner.onmouseleave = () => { tip.style.display = 'none'; };
   }
 }
 function weatherDmgMult(move) {
@@ -4330,6 +4551,8 @@ function log(msg, cls = '') {
 function showResult() {
   $('battle-screen').classList.add('hidden');
   $('result-screen').classList.remove('hidden');
+  document.body.classList.remove('battle-weather-sun','battle-weather-rain','battle-weather-sandstorm','battle-weather-hail');
+  if (_weatherTip) _weatherTip.style.display = 'none';
   const w = gameState.winner;
   const sub = $('winner-sub');
   const power = $('winner-power');
