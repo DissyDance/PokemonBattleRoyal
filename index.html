@@ -771,6 +771,7 @@
   .player-card.ai-mode .add-row,
   .player-card.ai-mode .slot-toolbar,
   .player-card.ai-mode .reroll-bar,
+  .player-card.ai-mode .preset-row,
   .player-card.ai-mode .remove-btn { display: none !important; }
   .ai-badge {
     display: inline-block; font-family: 'Orbitron', sans-serif;
@@ -870,6 +871,44 @@
     transform: translateY(-3px);
   }
   .team-slot.selectable .slot-toolbar { opacity: 0.4; }
+
+  /* Team presets */
+  .preset-row { display: flex; gap: 8px; margin: 10px 0 4px; }
+  .preset-row button { flex: 1; font-size: 8px; padding: 8px 6px; }
+  .p-save-preset { border-color: rgba(94,229,154,0.4) !important; }
+  .card-toast {
+    position: absolute; left: 50%; bottom: 12px; transform: translateX(-50%) translateY(10px);
+    background: rgba(46,204,113,0.92); color: #04231a; font-weight: 700;
+    font-family: 'Orbitron', sans-serif; font-size: 11px; letter-spacing: 0.5px;
+    padding: 8px 14px; border-radius: 10px; opacity: 0; pointer-events: none;
+    transition: opacity 0.25s ease, transform 0.25s ease; z-index: 30; white-space: nowrap;
+  }
+  .card-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .preset-modal { max-width: 640px; }
+  .preset-sec {
+    font-size: 12px; color: var(--accent-2); letter-spacing: 1px;
+    margin: 16px 0 8px; text-align: left;
+  }
+  .preset-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; }
+  .preset-item {
+    position: relative; background: rgba(15,22,38,0.85);
+    border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 10px;
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .preset-item-head {
+    font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: 12px; color: var(--txt);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding-right: 18px;
+  }
+  .preset-sub { font-size: 9px; color: var(--muted); }
+  .preset-thumbs { display: flex; flex-wrap: wrap; gap: 2px; min-height: 36px; }
+  .preset-thumbs img { width: 34px; height: 34px; image-rendering: pixelated; background: rgba(36,48,86,0.6); border-radius: 4px; }
+  .preset-load { font-size: 8px !important; padding: 7px 6px !important; margin-top: 2px; }
+  .preset-del {
+    position: absolute; top: 6px; right: 6px; width: 18px; height: 18px; padding: 0;
+    background: var(--accent); border: none; border-radius: 50%; color: #fff;
+    font-family: sans-serif; font-size: 12px; line-height: 14px; cursor: pointer;
+  }
+  .preset-empty { font-size: 11px; color: var(--muted); padding: 8px; }
 
   /* Mega-capable badge in arena */
   .mega-capable-badge {
@@ -2095,6 +2134,122 @@ async function selectMoves(pokemonData) {
    MODULE 1 — SETUP UI
    ============================================================ */
 
+// ---------- TEAM PRESETS (localStorage) ----------
+// Two collections: `named` (user-saved) and `auto` (last games, capped).
+const PRESET_KEY = 'pbr_team_presets_v1';
+function loadPresetStore() {
+  try { return JSON.parse(localStorage.getItem(PRESET_KEY)) || { named: [], auto: [] }; }
+  catch { return { named: [], auto: [] }; }
+}
+function savePresetStore(s) {
+  try { localStorage.setItem(PRESET_KEY, JSON.stringify(s)); } catch (e) { console.warn('Preset save failed', e); }
+}
+// Keep only the fields needed to rebuild a mon (drop transient battle state).
+function serializeTeam(team) {
+  return team.map(m => ({
+    id: m.id, name: m.name, slug: m.slug, sprite: m.sprite, spriteStatic: m.spriteStatic,
+    isShiny: !!m.isShiny, isStarter: !!m.isStarter, types: m.types, ivs: m.ivs,
+    baseStats: m.baseStats, stats: m.stats, maxHP: m.maxHP, nature: m.nature,
+    natureMods: m.natureMods, ability: m.ability, heldItem: m.heldItem, cry: m.cry,
+    megaForms: m.megaForms, moves: m.moves
+  }));
+}
+function hydrateTeam(saved) {
+  return saved.map(m => ({
+    ...JSON.parse(JSON.stringify(m)),
+    currentHP: m.maxHP, fainted: false, isFusion: false, isMega: false, status: null, _entered: false
+  }));
+}
+function saveNamedPreset(name, team) {
+  const s = loadPresetStore();
+  s.named.unshift({ id: 'n' + Date.now(), name, createdAt: Date.now(), team: serializeTeam(team) });
+  s.named = s.named.slice(0, 24);
+  savePresetStore(s);
+}
+function pushAutoPreset(label, team) {
+  if (!team || !team.length) return;
+  const s = loadPresetStore();
+  s.auto.unshift({ id: 'a' + Date.now() + Math.floor(Math.random() * 1000), label, createdAt: Date.now(), team: serializeTeam(team) });
+  s.auto = s.auto.slice(0, 12);
+  savePresetStore(s);
+}
+function deletePreset(id) {
+  const s = loadPresetStore();
+  s.named = s.named.filter(p => p.id !== id);
+  s.auto = s.auto.filter(p => p.id !== id);
+  savePresetStore(s);
+}
+function presetDateLabel(ts) {
+  try { return new Date(ts).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }); }
+  catch { return ''; }
+}
+// Brief confirmation toast inside a player card.
+function flashCardMsg(card, msg) {
+  let box = card.querySelector('.card-toast');
+  if (!box) { box = el('div', { className: 'card-toast' }); card.appendChild(box); }
+  box.textContent = msg;
+  box.classList.add('show');
+  setTimeout(() => box.classList.remove('show'), 1800);
+}
+// Preset picker modal: load a saved/recent team into a player.
+function showPresetPicker(player, card) {
+  const store = loadPresetStore();
+  const overlay = el('div', { className: 'modal-overlay' });
+  const section = (title, list, kind) => {
+    if (!list.length) return `<div class="preset-empty">${kind === 'named' ? 'Aucun préréglage enregistré.' : 'Aucune équipe récente.'}</div>`;
+    return list.map(pr => {
+      const thumbs = pr.team.slice(0, 7).map(m => `<img src="${m.spriteStatic || m.sprite}" alt="${m.name}" title="${m.name}" />`).join('');
+      const sub = kind === 'named' ? presetDateLabel(pr.createdAt) : `${pr.label} · ${presetDateLabel(pr.createdAt)}`;
+      return `<div class="preset-item" data-id="${pr.id}">
+        <button class="preset-del" data-del="${pr.id}" title="Supprimer">×</button>
+        <div class="preset-item-head">${kind === 'named' ? pr.name : pr.label}</div>
+        <div class="preset-sub">${sub}</div>
+        <div class="preset-thumbs">${thumbs}</div>
+        <button class="preset-load primary" data-load="${pr.id}">CHARGER (${pr.team.length})</button>
+      </div>`;
+    }).join('');
+  };
+  const cardEl = el('div', { className: 'modal-card preset-modal' });
+  cardEl.innerHTML = `
+    <h2>📁 Charger une équipe — ${player.name}</h2>
+    <h3 class="preset-sec">⭐ Préréglages enregistrés</h3>
+    <div class="preset-grid">${section('named', store.named, 'named')}</div>
+    <h3 class="preset-sec">🕘 Parties récentes</h3>
+    <div class="preset-grid">${section('auto', store.auto, 'auto')}</div>
+    <button class="primary close-modal">FERMER</button>
+  `;
+  overlay.appendChild(cardEl);
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+  cardEl.querySelector('.close-modal').addEventListener('click', () => overlay.remove());
+  cardEl.addEventListener('click', (e) => {
+    const loadId = e.target.getAttribute('data-load');
+    const delId = e.target.getAttribute('data-del');
+    if (loadId) {
+      const all = [...store.named, ...store.auto];
+      const pr = all.find(x => x.id === loadId);
+      if (pr) {
+        player.team = hydrateTeam(pr.team);
+        // ensure exactly one starter (slot 0)
+        player.team.forEach((m, i) => { m.isStarter = (i === 0); });
+        if (player.team[0]) applyStarterBoost(player.team[0]);
+        player.isAI = false;
+        card.classList.remove('ai-mode');
+        const aiToggle = card.querySelector('.p-ai-toggle');
+        if (aiToggle) aiToggle.checked = false;
+        renderTeam(card, player);
+        updateLaunchBtn();
+        overlay.remove();
+        flashCardMsg(card, `✓ Équipe chargée (${player.team.length})`);
+      }
+    } else if (delId) {
+      deletePreset(delId);
+      overlay.remove();
+      showPresetPicker(player, card); // reopen refreshed
+    }
+  });
+  document.body.appendChild(overlay);
+}
+
 function renderSetup() {
   const grid = $('players-grid');
   grid.innerHTML = '';
@@ -2134,6 +2289,10 @@ function renderSetup() {
         <input type="checkbox" class="p-ai-toggle" />
         <span class="ai-label">🤖 Joueur IA (équipe aléatoire automatique)</span>
       </label>
+      <div class="preset-row">
+        <button class="p-load-preset" title="Charger une équipe sauvegardée ou récente">📁 Charger une équipe</button>
+        <button class="p-save-preset" title="Enregistrer l'équipe actuelle comme préréglage">💾 Enregistrer</button>
+      </div>
       <div class="team-list"></div>
       <div class="team-count-line">Équipe : <span class="team-count">0</span>/7</div>
     `;
@@ -2171,6 +2330,17 @@ function renderSetup() {
       const name = POKEDEX_NAMES_FR[Math.floor(Math.random() * POKEDEX_NAMES_FR.length)];
       monInput.value = name;
       addMon();
+    });
+
+    card.querySelector('.p-load-preset').addEventListener('click', () => showPresetPicker(p, card));
+    card.querySelector('.p-save-preset').addEventListener('click', () => {
+      if (!p.team.length) { errBox.textContent = 'Aucune équipe à enregistrer.'; return; }
+      const def = `${p.name} (${p.team.length})`;
+      const name = (window.prompt('Nom du préréglage :', def) || '').trim();
+      if (!name) return;
+      saveNamedPreset(name, p.team);
+      errBox.textContent = '';
+      flashCardMsg(card, `✓ Équipe « ${name} » enregistrée`);
     });
 
     const showSuggestions = (list) => {
@@ -2594,6 +2764,10 @@ function pickPower(powerKey) {
    ============================================================ */
 
 function startBattle() {
+  // Auto-save each finalized lineup so it can be reloaded in future games.
+  gameState.players.forEach(p => {
+    if (p.team && p.team.length) pushAutoPreset(p.name + (p.isAI ? ' (IA)' : ''), p.team);
+  });
   // Keep user-defined order. Split off 7th into fusion-only reserve.
   gameState.players.forEach(p => {
     if (p.team.length === 7) {
